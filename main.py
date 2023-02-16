@@ -21,9 +21,7 @@ clock = py.time.Clock()
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
 
-
 while running:
-    
     for event in py.event.get():
         if event.type == py.QUIT:
             running = False
@@ -32,9 +30,18 @@ while running:
         introRunning = True
         while introRunning:
             py.draw.rect(screen, skyBlue, skyBG)
-            pydraw.filled_ellipse(screen, 640, 620, 1500, 200, sandYellow)
-            pydraw.filled_ellipse(screen, )
+            pydraw.filled_ellipse(screen, 640, 680, 1500, 200, sandYellow)
+            for i in range(0,33):
+                pydraw.filled_ellipse(screen, i * 40, 720, 50, 100, oceanBlue)
+            
+            
+
             py.display.flip()
+            clock.tick(60)
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    introRunning = False
+                    running = False
 
 
     py.display.flip()
