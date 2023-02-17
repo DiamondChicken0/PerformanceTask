@@ -21,6 +21,8 @@ gray = (64, 64, 64)
 
 class States(Enum):
     mainMenu = 1
+    transition = 2
+    mainGame = 3
 
 state = States.mainMenu
 clock = py.time.Clock()
@@ -75,14 +77,14 @@ while running:
             pydraw.box(screen, ((190, j - 530), (900,520)), (0,0,0))
             pydraw.box(screen, ((200, j - 520), (880,500)), woodBrown)
 
-            screen.blit(titleTextBG, (235 + 3, j - 460 - 3))
-            screen.blit(titleTextBG, (235 + 3, j - 460 + 3))
-            screen.blit(titleTextBG, (235 - 3, j - 460 - 3))
-            screen.blit(titleTextBG, (235 - 3, j - 460 + 3))
-            screen.blit(titleTextBG, (235 + 3, j - 460))
-            screen.blit(titleTextBG, (235 - 3, j - 460))
-            screen.blit(titleTextBG, (235, j - 460 - 3))
-            screen.blit(titleTextBG, (235, j - 460 + 3))
+            screen.blit(titleTextBG, (235 + 3, j - 490 - 3))
+            screen.blit(titleTextBG, (235 + 3, j - 490 + 3))
+            screen.blit(titleTextBG, (235 - 3, j - 490 - 3))
+            screen.blit(titleTextBG, (235 - 3, j - 490 + 3))
+            screen.blit(titleTextBG, (235 + 3, j - 490))
+            screen.blit(titleTextBG, (235 - 3, j - 490))
+            screen.blit(titleTextBG, (235, j - 490 - 3))
+            screen.blit(titleTextBG, (235, j - 490 + 3))
             screen.blit(titleText, (235, j - 490))
             
             if introDone:
@@ -100,7 +102,25 @@ while running:
                     running = False
                 if event.type == py.MOUSEBUTTONDOWN:
                     if ((mouse[0] >= 385 and mouse[0] <= 895) and (mouse[1] >= 295 and mouse[1] <= 505)):
-                        py.quit()
+                        introRunning = False
+                        state = States.transition
+
+    if state == States.transition:
+        transitioning = True
+        j = 0
+        while transitioning:
+            if j < 1500:
+                j = j + 5
+            py.display.flip()
+            clock.tick(60)
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    running = False
+
+            pydraw.box(screen, ((640 ,-2000 + j),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((-2000 ,-2000 + j),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((-500 ,-2000 + j),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((-500 ,-2000 + j),(2000,2000)), (0,0,0))
 
 
     py.display.flip()
