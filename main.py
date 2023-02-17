@@ -2,6 +2,7 @@ import pygame as py
 import pygame.gfxdraw as pydraw
 from enum import Enum
 py.init()
+py.font.init()
 
 size = (1280, 720)
 screen = py.display.set_mode(size)
@@ -15,6 +16,8 @@ sandOutline = (173, 169, 87)
 grassGreen = (102, 255, 102)
 darkGreen = (51, 153, 51)
 woodBrown = (153, 102, 51)
+lightGray = (163, 163, 163)
+gray = (64, 64, 64)
 
 class States(Enum):
     mainMenu = 1
@@ -25,6 +28,13 @@ clock = py.time.Clock()
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
 
+titleFont = py.font.SysFont("Trebuchet MS", 150)
+titleText = titleFont.render("Bot Defense", True, (255,255,0))
+titleTextBG = titleFont.render("Bot Defense", True, (200,200,0))
+
+subTitleFont = py.font.SysFont("Tahoma", 90)
+startGameText = subTitleFont.render("Start Game", True, (255,255,255))
+
 while running:
     for event in py.event.get():
         if event.type == py.QUIT:
@@ -32,10 +42,13 @@ while running:
     
     if state == States.mainMenu:
         introRunning = True
+        introDone = False
         j = 0
         while introRunning:
             if j < 570:
                 j = j + 2.5
+            else:
+                introDone = True
             py.draw.rect(screen, skyBlue, skyBG)
             pydraw.box(screen, ((0,400), (1280,500)), grassGreen)
 
@@ -61,17 +74,33 @@ while running:
             
             pydraw.box(screen, ((190, j - 530), (900,520)), (0,0,0))
             pydraw.box(screen, ((200, j - 520), (880,500)), woodBrown)
+
+            screen.blit(titleTextBG, (235 + 3, j - 460 - 3))
+            screen.blit(titleTextBG, (235 + 3, j - 460 + 3))
+            screen.blit(titleTextBG, (235 - 3, j - 460 - 3))
+            screen.blit(titleTextBG, (235 - 3, j - 460 + 3))
+            screen.blit(titleTextBG, (235 + 3, j - 460))
+            screen.blit(titleTextBG, (235 - 3, j - 460))
+            screen.blit(titleTextBG, (235, j - 460 - 3))
+            screen.blit(titleTextBG, (235, j - 460 + 3))
+            screen.blit(titleText, (235, j - 490))
             
-            
-            
-            
+            if introDone:
+                pydraw.box(screen, ((385,295),(510,210)), gray)
+                pydraw.box(screen, ((390,300),(500,200)), lightGray)
+                screen.blit(startGameText, (415,330))
+                
 
             py.display.flip()
             clock.tick(60)
             for event in py.event.get():
+                mouse = py.mouse.get_pos()
                 if event.type == py.QUIT:
                     introRunning = False
                     running = False
+                if event.type == py.MOUSEBUTTONDOWN:
+                    if ((mouse[0] >= 385 and mouse[0] <= 895) and (mouse[1] >= 295 and mouse[1] <= 505)):
+                        py.quit()
 
 
     py.display.flip()
