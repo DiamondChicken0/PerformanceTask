@@ -116,11 +116,11 @@ while running:
             for event in py.event.get():
                 if event.type == py.QUIT:
                     running = False
-
-            pydraw.box(screen, ((640 ,-2000 + j),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((-2000 ,-2000 + j),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((-500 ,-2000 + j),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((-500 ,-2000 + j),(2000,2000)), (0,0,0))
+            #LRUD
+            pydraw.box(screen, ((-2000 + j, 0),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((1280 - j, 0),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((0, 720 - j),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((0, -2000 + j),(2000,2000)), (0,0,0))
 
 
     py.display.flip()
