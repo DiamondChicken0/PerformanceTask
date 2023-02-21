@@ -109,19 +109,41 @@ while running:
         transitioning = True
         j = 0
         while transitioning:
-            if j < 1500:
-                j = j + 5
-            py.display.flip()
-            clock.tick(60)
             for event in py.event.get():
                 if event.type == py.QUIT:
-                    running = False
-            #LRUD
+                    running  = False
+                    transitioning = False
+
+            if j < 1500:
+                j = j + 5
+            else:
+                transitioning = False
+                state = States.mainGame
+            
             pydraw.box(screen, ((-2000 + j, 0),(2000,2000)), (0,0,0))
             pydraw.box(screen, ((1280 - j, 0),(2000,2000)), (0,0,0))
             pydraw.box(screen, ((0, 720 - j),(2000,2000)), (0,0,0))
             pydraw.box(screen, ((0, -2000 + j),(2000,2000)), (0,0,0))
 
+            py.display.flip()
+            clock.tick(60)
+
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    running = False
+
+    if state == States.mainGame:
+        
+        py.display.flip()
+            clock.tick(60)
+
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                running = False
+
+    for event in py.event.get():
+        if event.type == py.QUIT:
+            running = False
 
     py.display.flip()
     clock.tick(60)
