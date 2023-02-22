@@ -18,6 +18,9 @@ darkGreen = (51, 153, 51)
 woodBrown = (153, 102, 51)
 lightGray = (163, 163, 163)
 gray = (64, 64, 64)
+grayRoad = (85,85,85)
+darkWood = (56, 46, 17)
+lightWood = (135, 112, 45)
 
 class States(Enum):
     mainMenu = 1
@@ -133,13 +136,42 @@ while running:
                     running = False
 
     if state == States.mainGame:
-        
-        py.display.flip()
-            clock.tick(60)
+        gameRunning = True
+        j = 0
+        while gameRunning:
+            j = j + 2.5
+            pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
 
-        for event in py.event.get():
-            if event.type == py.QUIT:
-                running = False
+            pydraw.box(screen, ((-10, 100), (300, 80)), grayRoad)
+            pydraw.box(screen, ((290, 100), (80, 300)), grayRoad)
+            pydraw.box(screen, ((290, 400), (500, 80)), grayRoad)
+            pydraw.box(screen, ((790, 100), (80, 380)), grayRoad)
+            pydraw.box(screen, ((790, 100), (450, 80)), grayRoad)
+            pydraw.box(screen, ((1160, 100), (80, 500)), grayRoad)
+            pydraw.box(screen, ((90, 600), (1150, 80)), grayRoad)
+            pydraw.box(screen, ((90, 600), (80, 300)), grayRoad)
+
+            pydraw.box(screen, ((880, 190), (270, 400)), oceanBlue)
+
+            pydraw.box(screen, ((0,0),(1280, 95)), (0,0,0))
+
+            pydraw.box(screen, ((0, 0),(1280, 90)), darkWood)
+
+            for i in range(0,20):
+                pydraw.box(screen, ((80 * i, 0),(40, 90)), woodBrown)
+
+            pydraw.box(screen, ((-360 - j,-640 - j),(1000,1000)), (0,0,0))
+            pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), (0,0,0))
+            pydraw.box(screen, ((-360 - j,360 + j),(1000,1000)), (0,0,0))
+            pydraw.box(screen, ((640 + j,360 + j),(1000,1000)), (0,0,0))
+
+            py.display.flip()
+            clock.tick(60)
+            
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    running = False
+                    gameRunning = False
 
     for event in py.event.get():
         if event.type == py.QUIT:
