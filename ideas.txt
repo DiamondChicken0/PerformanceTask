@@ -1,0 +1,35 @@
+# Robots 
+
+Base Robots - Remaining HP shown by their colored battery indication
+Red Charge - 2 HP
+Orange Charge - 5 HP
+Blue Charge - 10 HP
+Green Charge - 15 HP
+
+BFR (Big Freaky Robots)
+
+
+# Towers
+Water Gunner | Cost: 
+    - Shoots linear sprays of water at robots
+        Uprades
+            A1 - Fast Pumps: The tower now shoots 50% Faster
+            Cost: 
+            A2 - Faster Pumps: The tower now shoots 100% Faster
+            Cost:
+            A3 - Double Pump: Two pumps are better than one; Shoot two Water guns now
+            Cost:
+
+            B1 - Focused Spray: Water now goes through 1 robot
+            Cost:
+            B2 - Tactical Goggles: Invisible robots can now be seen by this tower
+            Cost:
+            B3 - All Seeing: Any invisible robots are made visible if shot by this tower
+            Cost: 
+
+            C1 - Strong Spray: Shots pierces through 2 layers of armor now
+            Cost:
+            C2: - Big Shot(s): BFR's take double damage from this tower 
+            Cost:
+            C3: - Call Out: The robot currently being targeted by this tower will take double damage from all sources
+
