@@ -9,8 +9,8 @@ Green Charge - 15 HP
 BFR (Big Freaky Robots)
 Red Charge - 20 HP
 Orange Charge - 40 HP
-Blue Charge - 80 HP
-Green Charge - 100 HP
+Blue Charge - 60 HP
+Green Charge - 80 HP
 
 # Towers
 Water Gunner | Cost: 

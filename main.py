@@ -21,6 +21,11 @@ gray = (64, 64, 64)
 grayRoad = (85,85,85)
 darkWood = (56, 46, 17)
 lightWood = (135, 112, 45)
+redCharge = (201, 0, 0)
+orangeCharge = (255, 72, 0)
+blueCharge = (0, 117, 227)
+greenCharge = (0, 227, 45)
+robotGray = (30,30,30)
 
 class States(Enum):
     mainMenu = 1
@@ -39,6 +44,47 @@ titleTextBG = titleFont.render("Bot Defense", True, (200,200,0))
 
 subTitleFont = py.font.SysFont("Tahoma", 90)
 startGameText = subTitleFont.render("Start Game", True, (255,255,255))
+
+class robot(py.sprite.Sprite):
+    def __init__(self, color, BFR):
+        super().__init__()
+        self.image = py.Surface((75,75))
+
+        self.charge = color
+
+        if self.charge == "r":
+            if BFR:
+                self.HP = 20
+            else:
+                self.HP = 2
+            self.outline = redCharge
+            self.speed = 50
+        elif self.charge == "o":
+            if BFR:
+                self.HP = 40
+            else:
+                self.HP = 5
+            self.outline = orangeCharge
+            self.speed = 65
+        elif self.charge == "b":
+            if BFR:
+                self.HP = 60
+            else:
+                self.HP = 10
+            self.outline = blueCharge
+            self.speed = 80
+        elif self.charge == "g":
+            if BFR:
+                self.HP = 80
+            else:
+                self.HP = 15
+            self.outline = greenCharge
+            self.speed = 100
+        
+        pydraw.filled_circle(self.image, 0, 0, 38, robotGray)
+        #pydraw.box(self.image, ((0,0), (75,75)), self.outline)
+        self.rect = self.image.get_rect()
+        
 
 while running:
     for event in py.event.get():
@@ -138,6 +184,11 @@ while running:
     if state == States.mainGame:
         gameRunning = True
         j = 0
+        spriteList = py.sprite.Group()
+        test = robot("r", False)
+        test.rect.x = 300
+        test.rect.y = 300
+        spriteList.add(test)
         while gameRunning:
             j = j + 2.5
             pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
@@ -152,6 +203,9 @@ while running:
             pydraw.box(screen, ((90, 600), (80, 300)), grayRoad)
 
             pydraw.box(screen, ((880, 190), (270, 400)), oceanBlue)
+
+            spriteList.update()
+            spriteList.draw(screen)
 
             pydraw.box(screen, ((0,0),(1280, 95)), (0,0,0))
 
