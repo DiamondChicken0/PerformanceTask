@@ -25,8 +25,9 @@ redCharge = (201, 0, 0)
 orangeCharge = (255, 72, 0)
 blueCharge = (0, 117, 227)
 greenCharge = (0, 227, 45)
-robotGray = (30,30,30)
+robotGray = (200,200,200)
 
+robotMoves = ((-100, 105), (210, 105))
 class States(Enum):
     mainMenu = 1
     transition = 2
@@ -80,10 +81,20 @@ class robot(py.sprite.Sprite):
                 self.HP = 15
             self.outline = greenCharge
             self.speed = 100
+
+        pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
+        pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
+        pydraw.filled_circle(self.image, 30, 21, 4, redCharge)
+        pydraw.filled_circle(self.image, 30, 55, 4, redCharge)
+        pydraw.box(self.image, ((46,18),(4,40)), redCharge)
         
-        pydraw.filled_circle(self.image, 0, 0, 38, robotGray)
-        #pydraw.box(self.image, ((0,0), (75,75)), self.outline)
         self.rect = self.image.get_rect()
+    
+    def update():
+
+        for 
+    
+    
         
 
 while running:
@@ -186,8 +197,8 @@ while running:
         j = 0
         spriteList = py.sprite.Group()
         test = robot("r", False)
-        test.rect.x = 300
-        test.rect.y = 300
+        test.rect.x = 100
+        test.rect.y = 100
         spriteList.add(test)
         while gameRunning:
             j = j + 2.5
