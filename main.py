@@ -34,6 +34,7 @@ class States(Enum):
 
 state = States.mainMenu
 clock = py.time.Clock()
+gameLives = 100
 
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
@@ -48,7 +49,7 @@ startGameText = subTitleFont.render("Start Game", True, (255,255,255))
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
         super().__init__()
-        self.robotMoves = ((-100, 102), (210, 102))
+        self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 600), (90, 600), (90, 900))
         self.image = py.Surface((76,76))
         self.charge = color
 
@@ -85,33 +86,37 @@ class robot(py.sprite.Sprite):
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
         pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
-        pydraw.filled_circle(self.image, 30, 21, 4, redCharge)
-        pydraw.filled_circle(self.image, 30, 55, 4, redCharge)
-        pydraw.box(self.image, ((46,18),(4,40)), redCharge)
+        pydraw.filled_circle(self.image, 30, 21, 4, self.outline)
+        pydraw.filled_circle(self.image, 30, 55, 4, self.outline)
+        pydraw.box(self.image, ((46,18),(4,40)), self.outline)
         
         self.rect = self.image.get_rect()
         self.rect.x = self.robotMoves[0][0]
         self.rect.y = self.robotMoves[0][1]
 
     def update(self):
-        if self.rect.x < self.robotMoves[self.moveNum][0]:
-            self.rect.x += 2 * (self.speed)/100
-        elif self.rect.x > self.robotMoves[self.moveNum][0]:
-            self.rect.x -= 2 * (self.speed)/100
-        
-        if self.rect.y < self.robotMoves[self.moveNum][1]:
-            self.rect.y += 2 * (self.speed)/100
-        elif self.rect.y > self.robotMoves[self.moveNum][1]:
-            self.rect.y -= 2 * (self.speed)/100
-
-        if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
-            self.robotMoves += 1
+        if self.moveNum < self.robotMoves.__len__():
+            if self.rect.x < self.robotMoves[self.moveNum][0]:
+                self.rect.x += 2 * (self.speed)/100
+            elif self.rect.x > self.robotMoves[self.moveNum][0]:
+                self.rect.x -= 2 * (self.speed)/100
             
-        for event in py.event.get():
-            if event.type == py.QUIT:
-                py.quit()
+            if self.rect.y < self.robotMoves[self.moveNum][1]:
+                self.rect.y += 2 * (self.speed)/100
+            elif self.rect.y > self.robotMoves[self.moveNum][1]:
+                self.rect.y -= 2 * (self.speed)/100
 
-    
+            if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
+                self.moveNum += 1
+                
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    py.quit()
+        else:
+            self.kill()
+
+
+
     
         
 
@@ -215,10 +220,13 @@ while running:
         j = 0
         spriteList = py.sprite.Group()
         test = robot("r", False)
-
+        test2 = robot("g", False)
         spriteList.add(test)
+        spriteList.add(test2)
         while gameRunning:
+
             j = j + 2.5
+
             pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
 
             pydraw.box(screen, ((-10, 100), (300, 80)), grayRoad)
