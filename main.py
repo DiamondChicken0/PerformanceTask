@@ -27,7 +27,6 @@ blueCharge = (0, 117, 227)
 greenCharge = (0, 227, 45)
 robotGray = (200,200,200)
 
-robotMoves = ((-100, 105), (210, 105))
 class States(Enum):
     mainMenu = 1
     transition = 2
@@ -49,9 +48,11 @@ startGameText = subTitleFont.render("Start Game", True, (255,255,255))
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
         super().__init__()
-        self.image = py.Surface((75,75))
-
+        self.robotMoves = ((-100, 102), (210, 102))
+        self.image = py.Surface((76,76))
         self.charge = color
+
+        self.moveNum = 1
 
         if self.charge == "r":
             if BFR:
@@ -89,10 +90,27 @@ class robot(py.sprite.Sprite):
         pydraw.box(self.image, ((46,18),(4,40)), redCharge)
         
         self.rect = self.image.get_rect()
-    
-    def update():
+        self.rect.x = self.robotMoves[0][0]
+        self.rect.y = self.robotMoves[0][1]
 
-        for 
+    def update(self):
+        if self.rect.x < self.robotMoves[self.moveNum][0]:
+            self.rect.x += 2 * (self.speed)/100
+        elif self.rect.x > self.robotMoves[self.moveNum][0]:
+            self.rect.x -= 2 * (self.speed)/100
+        
+        if self.rect.y < self.robotMoves[self.moveNum][1]:
+            self.rect.y += 2 * (self.speed)/100
+        elif self.rect.y > self.robotMoves[self.moveNum][1]:
+            self.rect.y -= 2 * (self.speed)/100
+
+        if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
+            self.robotMoves += 1
+            
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                py.quit()
+
     
     
         
@@ -197,8 +215,7 @@ while running:
         j = 0
         spriteList = py.sprite.Group()
         test = robot("r", False)
-        test.rect.x = 100
-        test.rect.y = 100
+
         spriteList.add(test)
         while gameRunning:
             j = j + 2.5
