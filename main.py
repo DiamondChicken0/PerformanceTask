@@ -93,14 +93,15 @@ class robot(py.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.robotMoves[0][0]
         self.rect.y = self.robotMoves[0][1]
+        self.storedAngle = 0
 
     def update(self):
         if self.moveNum < self.robotMoves.__len__():
             if self.rect.x < self.robotMoves[self.moveNum][0]:
                 self.rect.x += 2 * (self.speed)/100
+                
             elif self.rect.x > self.robotMoves[self.moveNum][0]:
                 self.rect.x -= 2 * (self.speed)/100
-            
             if self.rect.y < self.robotMoves[self.moveNum][1]:
                 self.rect.y += 2 * (self.speed)/100
             elif self.rect.y > self.robotMoves[self.moveNum][1]:
