@@ -1,5 +1,7 @@
 import pygame as py
 import pygame.gfxdraw as pydraw
+import pygame.pixelarray as px
+import random as rng
 from enum import Enum
 py.init()
 py.font.init()
@@ -32,10 +34,8 @@ class States(Enum):
     transition = 2
     mainGame = 3
 
-state = States.mainMenu
+state = States.mainGame
 clock = py.time.Clock()
-gameLives = 100
-
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
 
@@ -43,8 +43,154 @@ titleFont = py.font.SysFont("Trebuchet MS", 150)
 titleText = titleFont.render("Bot Defense", True, (255,255,0))
 titleTextBG = titleFont.render("Bot Defense", True, (200,200,0))
 
+hudFont = py.font.SysFont("Gill Sans MT", 90)
+
+heartHUD = py.Surface((7,7))
+heartPixelArray = py.PixelArray(heartHUD)
+for i in range(0,49):
+    heartPixelArray[int(i/7), i%7] = (255, 43, 43)
+heartPixelArray [0,0] = (43, 170, 255)
+heartPixelArray [3,0] = (43, 170, 255)
+heartPixelArray [6,0] = (43, 170, 255)
+heartPixelArray [0,4] = (43, 170, 255)
+heartPixelArray [6,4] = (43, 170, 255)
+heartPixelArray [0,5] = (43, 170, 255)
+heartPixelArray [1,5] = (43, 170, 255)
+heartPixelArray [5,5] = (43, 170, 255)
+heartPixelArray [6,5] = (43, 170, 255)
+heartPixelArray [0,6] = (43, 170, 255)
+heartPixelArray [1,6] = (43, 170, 255)
+heartPixelArray [2,6] = (43, 170, 255)
+heartPixelArray [4,6] = (43, 170, 255)
+heartPixelArray [5,6] = (43, 170, 255)
+heartPixelArray [6,6] = (43, 170, 255)
+heartPixelArray.close()
+
+heartHUD = py.transform.scale(heartHUD, (77, 77))
+heartHUD.set_colorkey((43, 170, 255))
+heartHUD.unlock()
+
+coinHUD = py.Surface((7,7))
+coinPixelArray = py.PixelArray(coinHUD)
+for i in range(0,49):
+    coinPixelArray[int(i/7), i%7] = (255, 243, 0)
+coinPixelArray [3,1] = (161, 154, 0)
+coinPixelArray [2,2] = (161, 154, 0)
+coinPixelArray [3,2] = (161, 154, 0)
+coinPixelArray [4,2] = (161, 154, 0)
+coinPixelArray [2,3] = (161, 154, 0)
+coinPixelArray [2,4] = (161, 154, 0)
+coinPixelArray [3,4] = (161, 154, 0)
+coinPixelArray [4,4] = (161, 154, 0)
+coinPixelArray [3,5] = (161, 154, 0)
+coinPixelArray [0,0] = (43, 170, 255)
+coinPixelArray [0,1] = (43, 170, 255)
+coinPixelArray [1,0] = (43, 170, 255)
+coinPixelArray [5,0] = (43, 170, 255)
+coinPixelArray [6,1] = (43, 170, 255)
+coinPixelArray [6,0] = (43, 170, 255)
+coinPixelArray [0,5] = (43, 170, 255)
+coinPixelArray [0,6] = (43, 170, 255)
+coinPixelArray [1,6] = (43, 170, 255)
+coinPixelArray [5,6] = (43, 170, 255)
+coinPixelArray [6,6] = (43, 170, 255)
+coinPixelArray [6,5] = (43, 170, 255)
+coinPixelArray.close()
+
+coinHUD = py.transform.scale(coinHUD, (77, 77))
+coinHUD.set_colorkey((43, 170, 255))
+coinHUD.unlock()
+
+waterHUD = py.Surface((7,7))
+waterPixelArray = py.PixelArray(waterHUD)
+for i in range(0,49):
+    waterPixelArray[int(i/7), i%7] = (99,155,255)
+waterPixelArray [4,4] = (95,205,220)
+waterPixelArray [0,0] = ((43, 170, 255))
+waterPixelArray [1,0] = ((43, 170, 255))
+waterPixelArray [2,0] = ((43, 170, 255))
+waterPixelArray [4,0] = ((43, 170, 255))
+waterPixelArray [5,0] = ((43, 170, 255))
+waterPixelArray [6,0] = ((43, 170, 255))
+waterPixelArray [0,1] = ((43, 170, 255))
+waterPixelArray [1,1] = ((43, 170, 255))
+waterPixelArray [5,1] = ((43, 170, 255))
+waterPixelArray [6,1] = ((43, 170, 255))
+waterPixelArray [0,2] = ((43, 170, 255))
+waterPixelArray [6,2] = ((43, 170, 255))
+waterPixelArray [0,3] = ((43, 170, 255))
+waterPixelArray [6,3] = ((43, 170, 255))
+waterPixelArray [0,4] = ((43, 170, 255))
+waterPixelArray [6,4] = ((43, 170, 255))
+waterPixelArray [0,5] = ((43, 170, 255))
+waterPixelArray [6,5] = ((43, 170, 255))
+waterPixelArray [0,6] = ((43, 170, 255))
+waterPixelArray [1,6] = ((43, 170, 255))
+waterPixelArray [5,6] = ((43, 170, 255))
+waterPixelArray [6,6] = ((43, 170, 255))
+
+waterPixelArray.close()
+
+waterHUD = py.transform.scale(waterHUD, (77, 77))
+waterHUD.set_colorkey((43, 170, 255))
+waterHUD.unlock()
+
+
+
+
 subTitleFont = py.font.SysFont("Tahoma", 90)
 startGameText = subTitleFont.render("Start Game", True, (255,255,255))
+
+class lives():
+    def __init__(self):
+        self.gameLives = 100
+        self.gameLivesText = hudFont.render(str(self.gameLives), True, (255,255,255))
+
+    def change(self, amount):
+        self.gameLives += amount
+        self.gameLivesText = hudFont.render(str(self.gameLives), True, (255,255,255))
+
+    def get(self):
+        return self.gameLives
+    
+    def getText(self):
+        return self.gameLivesText
+    
+class water():
+    def __init__(self):
+        self.water = 100
+
+    def change(self, amount):
+        self.water += amount
+
+    def get(self):
+        return self.water
+    
+class money():
+    def __init__(self):
+        self.money = 800
+
+    def change(self, amount):
+        self.money += amount
+
+    def get(self):
+        return self.money
+    
+currentLives = lives()
+waterSupply = water()
+currentMoney = money()
+
+class weather():
+    def __init__(self):
+        self.freq = 1
+        self.sev = 1
+        self.weather = [0,0,1,0,0,0,1]
+
+    def generateNext(self):
+        self.weather.pop(6)
+    
+
+
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
@@ -93,33 +239,38 @@ class robot(py.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.robotMoves[0][0]
         self.rect.y = self.robotMoves[0][1]
-        self.storedAngle = 0
+        self.storedAngle = 90
 
     def update(self):
+        self.storedAngle = self.storedAngle % 360
         if self.moveNum < self.robotMoves.__len__():
             if self.rect.x < self.robotMoves[self.moveNum][0]:
                 self.rect.x += 2 * (self.speed)/100
-                
+                if self.storedAngle != 90:
+                    self.image = py.transform.rotate(self.image, 90)
+                    self.storedAngle += 90
             elif self.rect.x > self.robotMoves[self.moveNum][0]:
                 self.rect.x -= 2 * (self.speed)/100
+                if self.storedAngle != 270:
+                    self.image = py.transform.rotate(self.image, 90)
+                    self.storedAngle += 90
             if self.rect.y < self.robotMoves[self.moveNum][1]:
                 self.rect.y += 2 * (self.speed)/100
+                if self.storedAngle != 0:
+                    self.image = py.transform.rotate(self.image, 90)
+                    self.storedAngle += 90
             elif self.rect.y > self.robotMoves[self.moveNum][1]:
                 self.rect.y -= 2 * (self.speed)/100
+                if self.storedAngle != 180:
+                    self.image = py.transform.rotate(self.image, 90)
+                    self.storedAngle += 90
 
             if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
                 self.moveNum += 1
                 
-            for event in py.event.get():
-                if event.type == py.QUIT:
-                    py.quit()
         else:
+            currentLives.change(self.HP * -1)
             self.kill()
-
-
-
-    
-        
 
 while running:
     for event in py.event.get():
@@ -225,7 +376,7 @@ while running:
         spriteList.add(test)
         spriteList.add(test2)
         while gameRunning:
-
+            
             j = j + 2.5
 
             pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
@@ -250,6 +401,11 @@ while running:
 
             for i in range(0,20):
                 pydraw.box(screen, ((80 * i, 0),(40, 90)), woodBrown)
+
+            screen.blit(currentLives.getText(),(100,15))
+            screen.blit(heartHUD, (15,10))
+            screen.blit(coinHUD, (220,8))
+            screen.blit(waterHUD, (500,8))
 
             pydraw.box(screen, ((-360 - j,-640 - j),(1000,1000)), (0,0,0))
             pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), (0,0,0))

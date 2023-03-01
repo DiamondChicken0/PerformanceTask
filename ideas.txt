@@ -13,7 +13,7 @@ Blue Charge - 60 HP
 Green Charge - 80 HP
 
 # Towers
-Water Gunner | Cost: 
+Rinser | Cost: 
     - Shoots linear sprays of water at robots
         Upgrades
             A1 - Fast Pumps: The tower now shoots 50% Faster
