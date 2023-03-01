@@ -135,9 +135,6 @@ waterHUD = py.transform.scale(waterHUD, (77, 77))
 waterHUD.set_colorkey((43, 170, 255))
 waterHUD.unlock()
 
-
-
-
 subTitleFont = py.font.SysFont("Tahoma", 90)
 startGameText = subTitleFont.render("Start Game", True, (255,255,255))
 
@@ -158,23 +155,33 @@ class lives():
     
 class water():
     def __init__(self):
-        self.water = 100
+        self.water = 9999
+        self.waterText = hudFont.render(str(self.water), True, (255,255,255))
 
     def change(self, amount):
         self.water += amount
+        self.waterText = hudFont.render(str(self.water), True, (255,255,255))
 
     def get(self):
         return self.water
+
+    def getText(self):
+        return self.waterText
     
 class money():
     def __init__(self):
-        self.money = 800
+        self.money = 99999
+        self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
 
     def change(self, amount):
         self.money += amount
+        self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
 
     def get(self):
         return self.money
+
+    def getText(self):
+        return self.moneyText
     
 currentLives = lives()
 waterSupply = water()
@@ -189,6 +196,12 @@ class weather():
     def generateNext(self):
         self.weather.pop(6)
     
+class rinser(py.sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__()
+        self.image = py.Surface((100,100))
+        self.image.set_alpha(150)
+        pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
 
 
 
@@ -403,9 +416,11 @@ while running:
                 pydraw.box(screen, ((80 * i, 0),(40, 90)), woodBrown)
 
             screen.blit(currentLives.getText(),(100,15))
+            screen.blit(currentMoney.getText(),(310,15))
+            screen.blit(waterSupply.getText(),(570,15))
             screen.blit(heartHUD, (15,10))
             screen.blit(coinHUD, (220,8))
-            screen.blit(waterHUD, (500,8))
+            screen.blit(waterHUD, (495,5))
 
             pydraw.box(screen, ((-360 - j,-640 - j),(1000,1000)), (0,0,0))
             pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), (0,0,0))
