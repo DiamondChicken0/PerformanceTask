@@ -28,6 +28,7 @@ orangeCharge = (255, 72, 0)
 blueCharge = (0, 117, 227)
 greenCharge = (0, 227, 45)
 robotGray = (200,200,200)
+rinserTone = (255,233,181)
 
 class States(Enum):
     mainMenu = 1
@@ -201,7 +202,7 @@ class rinser(py.sprite.Sprite):
         super().__init__()
         self.image = py.Surface((100,100))
         self.image.set_alpha(150)
-        pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
+        pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
 
 
 
