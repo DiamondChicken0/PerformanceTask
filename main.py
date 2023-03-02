@@ -35,7 +35,7 @@ class States(Enum):
     transition = 2
     mainGame = 3
 
-state = States.mainGame
+state = States.mainMenu
 clock = py.time.Clock()
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
@@ -199,10 +199,21 @@ class weather():
     
 class rinser(py.sprite.Sprite):
     def __init__(self, pos):
+        upgrades = (0,0,0)
         super().__init__()
         self.image = py.Surface((100,100))
-        self.image.set_alpha(150)
+        self.rect = self.image.get_rect()
+        pydraw.box(self.image, ((0,0), (100,100)), (244,244,244))
         pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
+        pydraw.filled_circle(self.image, 30, 40, 10, (255,255,255))
+        pydraw.filled_circle(self.image, 70, 40, 10, (255,255,255))
+        pydraw.filled_circle(self.image, 70, 40, 4, (0, 169, 223))
+        pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.image.set_colorkey((244,244,244))
+
+
 
 
 
@@ -389,6 +400,8 @@ while running:
         test2 = robot("g", False)
         spriteList.add(test)
         spriteList.add(test2)
+        test3 = rinser((200,200))
+        spriteList.add(test3)
         while gameRunning:
             
             j = j + 2.5
