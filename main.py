@@ -3,6 +3,7 @@ import pygame.gfxdraw as pydraw
 import pygame.pixelarray as px
 import random as rng
 from enum import Enum
+import math
 py.init()
 py.font.init()
 
@@ -28,14 +29,15 @@ orangeCharge = (255, 72, 0)
 blueCharge = (0, 117, 227)
 greenCharge = (0, 227, 45)
 robotGray = (200,200,200)
-rinserTone = (255,233,181)
+rinserTone = (255,204,153)
+rinserHair = (253, 193, 0)
 
 class States(Enum):
     mainMenu = 1
     transition = 2
     mainGame = 3
 
-state = States.mainMenu
+state = States.mainGame
 clock = py.time.Clock()
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
@@ -209,9 +211,12 @@ class rinser(py.sprite.Sprite):
         pydraw.filled_circle(self.image, 70, 40, 10, (255,255,255))
         pydraw.filled_circle(self.image, 70, 40, 4, (0, 169, 223))
         pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
+        pydraw.filled_trigon(self.image, 20,20,25,10,27,25, rinserHair)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.image.set_colorkey((244,244,244))
+
+
 
 
 
