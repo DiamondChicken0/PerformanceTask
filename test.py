@@ -1,9 +1,9 @@
-import openai
-openai.api_key = "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"
+from synthesizer import Player, Synthesizer, Waveform
 
-prompt = "Hello, can you introduce yourself?"
-model = "text-davinci-002"
-response = openai.Completion.create(engine=model, prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.7)
-answer = response.choices[0].text.strip()
+player = Player()
+player.open_stream()
 
-print(answer)
+print("play major chord")
+synthesizer = Synthesizer(osc1_waveform=Waveform.sine, osc1_volume=1.0, use_osc2=False)
+chord = ["C4", "E4", "G4"]
+player.play_wave(synthesizer.generate_chord(chord, 3.0))

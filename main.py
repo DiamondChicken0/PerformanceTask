@@ -110,7 +110,7 @@ waterHUD = py.Surface((7,7))
 waterPixelArray = py.PixelArray(waterHUD)
 for i in range(0,49):
     waterPixelArray[int(i/7), i%7] = (99,155,255)
-waterPixelArray [4,4] = (95,205,220)
+waterPixelArray [4,4] = (255,255,255)
 waterPixelArray [0,0] = ((43, 170, 255))
 waterPixelArray [1,0] = ((43, 170, 255))
 waterPixelArray [2,0] = ((43, 170, 255))
@@ -224,16 +224,11 @@ class rinser(py.sprite.Sprite):
         pydraw.line(self.image, 50,50,55,60, (0,0,0))
         pydraw.line(self.image, 50,51,55,60, (0,0,0))
         pydraw.line(self.image, 50,52,55,60, (0,0,0))
-
+        pydraw.box(self.image,(0,40,10,30), (249, 171, 27))
+        pydraw.filled_trigon(self.image,0,70,5,75,10,70,(255, 116, 0))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.image.set_colorkey((107, 112, 0))
-
-
-
-
-
-
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
