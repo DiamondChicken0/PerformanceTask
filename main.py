@@ -4,8 +4,10 @@ import pygame.pixelarray as px
 import random as rng
 from enum import Enum
 import math
+import random
 py.init()
 py.font.init()
+random.seed()
 
 size = (1280, 720)
 screen = py.display.set_mode(size)
@@ -177,7 +179,7 @@ class money():
         self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
 
     def change(self, amount):
-        self.money += amount
+        self.money += amount 
         self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
 
     def get(self):
@@ -205,16 +207,27 @@ class rinser(py.sprite.Sprite):
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
-        pydraw.box(self.image, ((0,0), (100,100)), (244,244,244))
+        pydraw.box(self.image, ((0,0), (100,100)), (107, 112, 0))
         pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
         pydraw.filled_circle(self.image, 30, 40, 10, (255,255,255))
         pydraw.filled_circle(self.image, 70, 40, 10, (255,255,255))
         pydraw.filled_circle(self.image, 70, 40, 4, (0, 169, 223))
         pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
-        pydraw.filled_trigon(self.image, 20,20,25,10,27,25, rinserHair)
+        for i in range(0,20):
+            pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30), rinserHair)
+        pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, (0,0,0))
+        pydraw.bezier(self.image, [(25,71),(50,86),(75,71)], 100, (0,0,0))
+        pydraw.bezier(self.image, [(25,72),(50,87),(75,72)], 100, (0,0,0))
+        pydraw.line(self.image, 45,60,55,60, (0,0,0))
+        pydraw.line(self.image, 45,61,55,61, (0,0,0))
+        pydraw.line(self.image, 45,62,55,62, (0,0,0))
+        pydraw.line(self.image, 50,50,55,60, (0,0,0))
+        pydraw.line(self.image, 50,51,55,60, (0,0,0))
+        pydraw.line(self.image, 50,52,55,60, (0,0,0))
+
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.image.set_colorkey((244,244,244))
+        self.image.set_colorkey((107, 112, 0))
 
 
 
