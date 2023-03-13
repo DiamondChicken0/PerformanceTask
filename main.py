@@ -12,6 +12,7 @@ random.seed()
 size = (1280, 720)
 screen = py.display.set_mode(size)
 py.display.set_caption("Cool Game")
+spriteList = py.sprite.Group()
 
 skyBlue = (89, 247, 255)
 oceanBlue = (89, 136, 255)
@@ -33,6 +34,8 @@ greenCharge = (0, 227, 45)
 robotGray = (200,200,200)
 rinserTone = (255,204,153)
 rinserHair = (253, 193, 0)
+black = (0,0,0)
+white = (255,255,255)
 
 class States(Enum):
     mainMenu = 1
@@ -110,7 +113,7 @@ waterHUD = py.Surface((7,7))
 waterPixelArray = py.PixelArray(waterHUD)
 for i in range(0,49):
     waterPixelArray[int(i/7), i%7] = (99,155,255)
-waterPixelArray [4,4] = (255,255,255)
+waterPixelArray [4,4] = white
 waterPixelArray [0,0] = ((43, 170, 255))
 waterPixelArray [1,0] = ((43, 170, 255))
 waterPixelArray [2,0] = ((43, 170, 255))
@@ -141,16 +144,16 @@ waterHUD.set_colorkey((43, 170, 255))
 waterHUD.unlock()
 
 subTitleFont = py.font.SysFont("Tahoma", 90)
-startGameText = subTitleFont.render("Start Game", True, (255,255,255))
+startGameText = subTitleFont.render("Start Game", True, white)
 
 class lives():
     def __init__(self):
         self.gameLives = 100
-        self.gameLivesText = hudFont.render(str(self.gameLives), True, (255,255,255))
+        self.gameLivesText = hudFont.render(str(self.gameLives), True, white)
 
     def change(self, amount):
         self.gameLives += amount
-        self.gameLivesText = hudFont.render(str(self.gameLives), True, (255,255,255))
+        self.gameLivesText = hudFont.render(str(self.gameLives), True, white)
 
     def get(self):
         return self.gameLives
@@ -161,11 +164,11 @@ class lives():
 class water():
     def __init__(self):
         self.water = 9999
-        self.waterText = hudFont.render(str(self.water), True, (255,255,255))
+        self.waterText = hudFont.render(str(self.water), True, white)
 
     def change(self, amount):
         self.water += amount
-        self.waterText = hudFont.render(str(self.water), True, (255,255,255))
+        self.waterText = hudFont.render(str(self.water), True, white)
 
     def get(self):
         return self.water
@@ -176,11 +179,11 @@ class water():
 class money():
     def __init__(self):
         self.money = 99999
-        self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
+        self.moneyText = hudFont.render(str(self.money), True, white)
 
     def change(self, amount):
         self.money += amount 
-        self.moneyText = hudFont.render(str(self.money), True, (255,255,255))
+        self.moneyText = hudFont.render(str(self.money), True, white)
 
     def get(self):
         return self.money
@@ -203,32 +206,51 @@ class weather():
     
 class rinser(py.sprite.Sprite):
     def __init__(self, pos):
-        upgrades = (0,0,0)
+        upgrades = black
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
+        self.range = py.surface
+        #self.rect.coll
+        
+        pydraw.box(self.image, ((-2,-2), (104,104)), black)
+        pydraw.filled_circle(self.image, 50, 50, 44, black)
+        pydraw.filled_circle(self.image, 30, 40, 14, black)
+        pydraw.filled_circle(self.image, 70, 40, 14, black)
+        pydraw.filled_circle(self.image, 70, 40, 8, black)
+        pydraw.filled_circle(self.image, 30, 40, 8, black)
+
         pydraw.box(self.image, ((0,0), (100,100)), (107, 112, 0))
         pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
-        pydraw.filled_circle(self.image, 30, 40, 10, (255,255,255))
-        pydraw.filled_circle(self.image, 70, 40, 10, (255,255,255))
+        pydraw.filled_circle(self.image, 30, 40, 10, white)
+        pydraw.filled_circle(self.image, 70, 40, 10, white)
         pydraw.filled_circle(self.image, 70, 40, 4, (0, 169, 223))
         pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
+
         for i in range(0,20):
             pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30), rinserHair)
-        pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, (0,0,0))
-        pydraw.bezier(self.image, [(25,71),(50,86),(75,71)], 100, (0,0,0))
-        pydraw.bezier(self.image, [(25,72),(50,87),(75,72)], 100, (0,0,0))
-        pydraw.line(self.image, 45,60,55,60, (0,0,0))
-        pydraw.line(self.image, 45,61,55,61, (0,0,0))
-        pydraw.line(self.image, 45,62,55,62, (0,0,0))
-        pydraw.line(self.image, 50,50,55,60, (0,0,0))
-        pydraw.line(self.image, 50,51,55,60, (0,0,0))
-        pydraw.line(self.image, 50,52,55,60, (0,0,0))
+        pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, black)
+        pydraw.bezier(self.image, [(25,71),(50,86),(75,71)], 100, black)
+        pydraw.bezier(self.image, [(25,72),(50,87),(75,72)], 100, black)
+        pydraw.line(self.image, 45,60,55,60, black)
+        pydraw.line(self.image, 45,61,55,61, black)
+        pydraw.line(self.image, 45,62,55,62, black)
+        pydraw.line(self.image, 50,50,55,60, black)
+        pydraw.line(self.image, 50,51,55,60, black)
+        pydraw.line(self.image, 50,52,55,60, black)
         pydraw.box(self.image,(0,40,10,30), (249, 171, 27))
         pydraw.filled_trigon(self.image,0,70,5,75,10,70,(255, 116, 0))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.image.set_colorkey((107, 112, 0))
+        self.pixArray = py.surfarray.pixels2d(self.image)
+        self.pixArray.flatten()
+        self.pixArray[0,0] = (0,0,0)
+        self.pixArray[0,1] = black
+        self.pixArray[1,1] = black
+        self.pixArray[2,2] = black
+        self.pixArray[2,1] = black
+        self.pixArray[1,3] = black
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
@@ -347,7 +369,7 @@ while running:
             for i in range(0,33):
                 pydraw.filled_ellipse(screen, i * 40, 720, 50, 100, oceanBlue)
             
-            pydraw.box(screen, ((190, j - 530), (900,520)), (0,0,0))
+            pydraw.box(screen, ((190, j - 530), (900,520)), black)
             pydraw.box(screen, ((200, j - 520), (880,500)), woodBrown)
 
             screen.blit(titleTextBG, (235 + 3, j - 490 - 3))
@@ -393,10 +415,10 @@ while running:
                 transitioning = False
                 state = States.mainGame
             
-            pydraw.box(screen, ((-2000 + j, 0),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((1280 - j, 0),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((0, 720 - j),(2000,2000)), (0,0,0))
-            pydraw.box(screen, ((0, -2000 + j),(2000,2000)), (0,0,0))
+            pydraw.box(screen, ((-2000 + j, 0),(2000,2000)), black)
+            pydraw.box(screen, ((1280 - j, 0),(2000,2000)), black)
+            pydraw.box(screen, ((0, 720 - j),(2000,2000)), black)
+            pydraw.box(screen, ((0, -2000 + j),(2000,2000)), black)
 
             py.display.flip()
             clock.tick(60)
@@ -408,7 +430,6 @@ while running:
     if state == States.mainGame:
         gameRunning = True
         j = 0
-        spriteList = py.sprite.Group()
         test = robot("r", False)
         test2 = robot("g", False)
         spriteList.add(test)
@@ -435,7 +456,7 @@ while running:
             spriteList.update()
             spriteList.draw(screen)
 
-            pydraw.box(screen, ((0,0),(1280, 95)), (0,0,0))
+            pydraw.box(screen, ((0,0),(1280, 95)), black)
 
             pydraw.box(screen, ((0, 0),(1280, 90)), darkWood)
 
@@ -449,10 +470,10 @@ while running:
             screen.blit(coinHUD, (220,8))
             screen.blit(waterHUD, (495,5))
 
-            pydraw.box(screen, ((-360 - j,-640 - j),(1000,1000)), (0,0,0))
-            pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), (0,0,0))
-            pydraw.box(screen, ((-360 - j,360 + j),(1000,1000)), (0,0,0))
-            pydraw.box(screen, ((640 + j,360 + j),(1000,1000)), (0,0,0))
+            pydraw.box(screen, ((-360 - j,-640 - j),(1000,1000)), black)
+            pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), black)
+            pydraw.box(screen, ((-360 - j,360 + j),(1000,1000)), black)
+            pydraw.box(screen, ((640 + j,360 + j),(1000,1000)), black)
 
             py.display.flip()
             clock.tick(60)
