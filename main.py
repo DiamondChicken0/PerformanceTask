@@ -161,6 +161,23 @@ class lives():
     def getText(self):
         return self.gameLivesText
     
+def outline(surf, key, size):
+    pixArrray = py.surfarray.array3d(surf)
+    surf.lock()
+    for x in pixArrray:
+        i = 0
+        for y in x:
+            if y[1] != key[1]:
+                for j in range(0,size):
+                    if x[i-j] == key:
+                        x[i-j] = black
+                    if x[i+j] == key:
+                        x[i+j] = black
+            i = i+1
+            
+    surf.unlock()
+    surf.set_colorkey(key)
+
 class water():
     def __init__(self):
         self.water = 9999
@@ -242,15 +259,15 @@ class rinser(py.sprite.Sprite):
         pydraw.filled_trigon(self.image,0,70,5,75,10,70,(255, 116, 0))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.image.set_colorkey((107, 112, 0))
-        self.pixArray = py.surfarray.pixels2d(self.image)
-        self.pixArray.flatten()
-        self.pixArray[0,0] = (0,0,0)
-        self.pixArray[0,1] = black
-        self.pixArray[1,1] = black
-        self.pixArray[2,2] = black
-        self.pixArray[2,1] = black
-        self.pixArray[1,3] = black
+
+        outline(self.image, (107,112,0), 4)
+        #self.image.set_colorkey((107, 112, 0))
+        #self.pixArray = py.surfarray.array3d(self.image)
+        #self.image.lock()
+        #self.pixArray[0,0:30] = 0
+        #self.image.unlock()
+        #self.image = py.surfarray.make_surface(self.pixArray)
+        #self.image.set_colorkey((107, 112, 0))
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
