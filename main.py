@@ -167,13 +167,17 @@ def outline(surf, key, size):
     for x in pixArrray:
         i = 0
         for y in x:
-            if y[1] != key[1]:
-                for j in range(0,size):
-                    if x[i-j] == key:
-                        x[i-j] = black
-                    if x[i+j] == key:
-                        x[i+j] = black
-            i = i+1
+            drawn = 0
+            if y[0] != key[0] and y[1] != key[1] and y[1] != key[2]:
+                while drawn <= size:
+                    if y[i - (drawn * 3)] != key[0] and y[(i - 1) - (drawn * 3)] != key[1] and y[(i - 2) - (drawn * 3)] != key[2]:
+                        y[i - (drawn * 3)] = 0
+                        y[(i-1) - (drawn * 3)] = 0
+                        y[(i-2) - (drawn * 3)] = 0
+                    drawn += 1
+            i = i+3
+            if i < 100:
+                i = 99
             
     surf.unlock()
     surf.set_colorkey(key)
