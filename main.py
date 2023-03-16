@@ -5,6 +5,7 @@ import random as rng
 from enum import Enum
 import math
 import random
+import numpy
 py.init()
 py.font.init()
 random.seed()
@@ -33,7 +34,7 @@ blueCharge = (0, 117, 227)
 greenCharge = (0, 227, 45)
 robotGray = (200,200,200)
 rinserTone = (255,204,153)
-rinserHair = (253, 193, 0)
+rinserHair = (153,76,0)
 black = (0,0,0)
 white = (255,255,255)
 
@@ -162,25 +163,34 @@ class lives():
         return self.gameLivesText
     
 def outline(surf, key, size):
-    pixArrray = py.surfarray.array3d(surf)
-    surf.lock()
-    for x in pixArrray:
-        i = 0
-        for y in x:
-            drawn = 0
-            if y[0] != key[0] and y[1] != key[1] and y[1] != key[2]:
-                while drawn <= size:
-                    if y[i - (drawn * 3)] != key[0] and y[(i - 1) - (drawn * 3)] != key[1] and y[(i - 2) - (drawn * 3)] != key[2]:
-                        y[i - (drawn * 3)] = 0
-                        y[(i-1) - (drawn * 3)] = 0
-                        y[(i-2) - (drawn * 3)] = 0
-                    drawn += 1
-            i = i+3
-            if i < 100:
-                i = 99
-            
-    surf.unlock()
-    surf.set_colorkey(key)
+    pixArray = py.surfarray.array3d(surf)
+    for y in range(surf.get_width()):
+        for x in range(surf.get_height()):
+            if pixArray[x,y,0] != key[0] and pixArray[x,y,1] != key[1] and pixArray[x,y,2] != key[2]:
+                for j in range(size):
+                    if x - j >= 0:
+                        if pixArray[x-j,y,0] == key[0] and pixArray[x-j,y,1] == key[1] and pixArray[x-j,y,2] == key[2]:
+                            pixArray[x-j,y,0] = 0
+                            pixArray[x-j,y,1] = 0
+                            pixArray[x-j,y,2] = 0
+                    if x + j <= 99:
+                        if pixArray[x+j,y,0] == key[0] and pixArray[x+j,y,1] == key[1] and pixArray[x+j,y,2] == key[2]:
+                            pixArray[x+j,y,0] = 0
+                            pixArray[x+j,y,1] = 0
+                            pixArray[x+j,y,2] = 0
+                    if y - j >= 0:
+                        if pixArray[x,y-j,0] == key[0] and pixArray[x,y-j,1] == key[1] and pixArray[x,y-j,2] == key[2]:
+                            pixArray[x,y-j,0] = 0
+                            pixArray[x,y-j,1] = 0
+                            pixArray[x,y-j,2] = 0
+                    if y + j <= 99:
+                        if pixArray[x,y+j,0] == key[0] and pixArray[x,y+j,1] == key[1] and pixArray[x,y+j,2] == key[2]:
+                            pixArray[x,y+j,0] = 0
+                            pixArray[x,y+j,1] = 0
+                            pixArray[x,y+j,2] = 0
+
+    surf = py.surfarray.make_surface(pixArray)
+    return surf
 
 class water():
     def __init__(self):
@@ -231,8 +241,6 @@ class rinser(py.sprite.Sprite):
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
-        self.range = py.surface
-        #self.rect.coll
         
         pydraw.box(self.image, ((-2,-2), (104,104)), black)
         pydraw.filled_circle(self.image, 50, 50, 44, black)
@@ -259,19 +267,13 @@ class rinser(py.sprite.Sprite):
         pydraw.line(self.image, 50,50,55,60, black)
         pydraw.line(self.image, 50,51,55,60, black)
         pydraw.line(self.image, 50,52,55,60, black)
-        pydraw.box(self.image,(0,40,10,30), (249, 171, 27))
-        pydraw.filled_trigon(self.image,0,70,5,75,10,70,(255, 116, 0))
+        pydraw.box(self.image,(5,40,10,30), (249, 171, 27))
+        pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 0))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-
-        outline(self.image, (107,112,0), 4)
-        #self.image.set_colorkey((107, 112, 0))
-        #self.pixArray = py.surfarray.array3d(self.image)
-        #self.image.lock()
-        #self.pixArray[0,0:30] = 0
-        #self.image.unlock()
-        #self.image = py.surfarray.make_surface(self.pixArray)
-        #self.image.set_colorkey((107, 112, 0))
+        self.image = outline(self.image, (107, 112, 0), 4)
+        py.image.save(self.image, "getaloadofthis.png")
+        self.image.set_colorkey((107,112,0))
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
