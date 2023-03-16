@@ -173,7 +173,7 @@ def outline(surf, key, size):
                             pixArray[x-j,y,0] = 0
                             pixArray[x-j,y,1] = 0
                             pixArray[x-j,y,2] = 0
-                    if x + j <= 99:
+                    if x + j < surf.get_width():
                         if pixArray[x+j,y,0] == key[0] and pixArray[x+j,y,1] == key[1] and pixArray[x+j,y,2] == key[2]:
                             pixArray[x+j,y,0] = 0
                             pixArray[x+j,y,1] = 0
@@ -183,7 +183,7 @@ def outline(surf, key, size):
                             pixArray[x,y-j,0] = 0
                             pixArray[x,y-j,1] = 0
                             pixArray[x,y-j,2] = 0
-                    if y + j <= 99:
+                    if y + j < surf.get_height():
                         if pixArray[x,y+j,0] == key[0] and pixArray[x,y+j,1] == key[1] and pixArray[x,y+j,2] == key[2]:
                             pixArray[x,y+j,0] = 0
                             pixArray[x,y+j,1] = 0
@@ -257,7 +257,7 @@ class rinser(py.sprite.Sprite):
         pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
 
         for i in range(0,20):
-            pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30), rinserHair)
+            pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30), (100, 69, 35))
         pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, black)
         pydraw.bezier(self.image, [(25,71),(50,86),(75,71)], 100, black)
         pydraw.bezier(self.image, [(25,72),(50,87),(75,72)], 100, black)
@@ -268,17 +268,16 @@ class rinser(py.sprite.Sprite):
         pydraw.line(self.image, 50,51,55,60, black)
         pydraw.line(self.image, 50,52,55,60, black)
         pydraw.box(self.image,(5,40,10,30), (249, 171, 27))
-        pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 0))
+        pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 67))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.image = outline(self.image, (107, 112, 0), 4)
-        py.image.save(self.image, "getaloadofthis.png")
+        self.image = outline(self.image, (107, 112, 0), 6)
         self.image.set_colorkey((107,112,0))
 
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
         super().__init__()
-        self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 600), (90, 600), (90, 900))
+        self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 600), (90, 600), (90, 800))
         self.image = py.Surface((76,76))
         self.charge = color
 
@@ -314,6 +313,7 @@ class robot(py.sprite.Sprite):
             self.speed = 100
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
+        pydraw.filled_circle(self.image, 38, 38, 34, black)
         pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
         pydraw.filled_circle(self.image, 30, 21, 4, self.outline)
         pydraw.filled_circle(self.image, 30, 55, 4, self.outline)
