@@ -277,7 +277,7 @@ class rinser(py.sprite.Sprite):
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
         super().__init__()
-        self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 600), (90, 600), (90, 800))
+        self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 490), (90, 490), (90, 700))
         self.image = py.Surface((76,76))
         self.charge = color
 
@@ -354,6 +354,7 @@ class robot(py.sprite.Sprite):
         else:
             currentLives.change(self.HP * -1)
             self.kill()
+
 
 while running:
     for event in py.event.get():
@@ -470,11 +471,11 @@ while running:
             pydraw.box(screen, ((290, 400), (500, 80)), grayRoad)
             pydraw.box(screen, ((790, 100), (80, 380)), grayRoad)
             pydraw.box(screen, ((790, 100), (450, 80)), grayRoad)
-            pydraw.box(screen, ((1160, 100), (80, 500)), grayRoad)
-            pydraw.box(screen, ((90, 600), (1150, 80)), grayRoad)
-            pydraw.box(screen, ((90, 600), (80, 300)), grayRoad)
+            pydraw.box(screen, ((1160, 100), (80, 400)), grayRoad)
+            pydraw.box(screen, ((90, 490), (1150, 80)), grayRoad)
+            pydraw.box(screen, ((90, 490), (80, 300)), grayRoad)
 
-            pydraw.box(screen, ((880, 190), (270, 400)), oceanBlue)
+            pydraw.box(screen, ((880, 190), (270, 290)), oceanBlue)
 
             spriteList.update()
             spriteList.draw(screen)
@@ -497,6 +498,20 @@ while running:
             pydraw.box(screen, ((640 + j ,-640 - j),(1000,1000)), black)
             pydraw.box(screen, ((-360 - j,360 + j),(1000,1000)), black)
             pydraw.box(screen, ((640 + j,360 + j),(1000,1000)), black)
+
+            pydraw.box(screen, ((0, 630),(1280, 110)), darkWood)
+
+            for i in range(0,20):
+                pydraw.box(screen, ((80 * i, 630),(40, 110)), woodBrown)
+            clickedOn = False
+            if clickedOn:
+                pass
+            else:
+                for i in range(0,8):
+                    pydraw.box(screen, ((45 + (i*150),640),(140,80)), (255,255,255))
+                    pydraw.filled_polygon(screen, [60, 710])
+                    #pydraw.box(screen,(5,40,10,30), (249, 171, 27))
+                    pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 67))
 
             py.display.flip()
             clock.tick(60)
