@@ -461,8 +461,8 @@ while running:
         test3 = rinser((200,200))
         spriteList.add(test3)
         while gameRunning:
-            
-            j = j + 2.5
+            if j < 2000:
+                j = j + 2.5
 
             pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
 
@@ -503,15 +503,14 @@ while running:
 
             for i in range(0,20):
                 pydraw.box(screen, ((80 * i, 630),(40, 110)), woodBrown)
-            clickedOn = False
-            if clickedOn:
-                pass
-            else:
-                for i in range(0,8):
-                    pydraw.box(screen, ((45 + (i*150),640),(140,80)), (255,255,255))
-                    pydraw.filled_polygon(screen, [60, 710])
-                    #pydraw.box(screen,(5,40,10,30), (249, 171, 27))
-                    pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 67))
+            
+            for i in range(0,7):
+                pydraw.box(screen, ((65 + (i*150),640),(140,80)), (255,255,255))
+                    
+            pydraw.box(screen, ((1175,635),(100, 80)), (51,255,51))
+            pydraw.filled_trigon(screen,1200,645,1200,705,1260,675,(white))
+                
+
 
             py.display.flip()
             clock.tick(60)
