@@ -15,6 +15,7 @@ screen = py.display.set_mode(size)
 py.display.set_caption("Cool Game")
 spriteList = py.sprite.Group()
 
+#colors
 skyBlue = (89, 247, 255)
 oceanBlue = (89, 136, 255)
 darkBlue = (0, 51, 204)
@@ -42,6 +43,7 @@ class States(Enum):
     mainMenu = 1
     transition = 2
     mainGame = 3
+    victory = 4
 
 state = States.mainGame
 clock = py.time.Clock()
@@ -54,6 +56,7 @@ titleTextBG = titleFont.render("Bot Defense", True, (200,200,0))
 
 hudFont = py.font.SysFont("Gill Sans MT", 90)
 
+#Creating hud elements
 heartHUD = py.Surface((7,7))
 heartPixelArray = py.PixelArray(heartHUD)
 for i in range(0,49):
@@ -147,6 +150,7 @@ waterHUD.unlock()
 subTitleFont = py.font.SysFont("Tahoma", 90)
 startGameText = subTitleFont.render("Start Game", True, white)
 
+#Keeps track of lives
 class lives():
     def __init__(self):
         self.gameLives = 100
@@ -162,10 +166,13 @@ class lives():
     def getText(self):
         return self.gameLivesText
     
+#Outlines surfaces using a key(background color)
 def outline(surf, key, size):
     pixArray = py.surfarray.array3d(surf)
+    #loop through everything
     for y in range(surf.get_width()):
         for x in range(surf.get_height()):
+            #check if pixel is background or foreground
             if pixArray[x,y,0] != key[0] and pixArray[x,y,1] != key[1] and pixArray[x,y,2] != key[2]:
                 for j in range(size):
                     if x - j >= 0:
@@ -182,7 +189,7 @@ def outline(surf, key, size):
                         if pixArray[x,y-j,0] == key[0] and pixArray[x,y-j,1] == key[1] and pixArray[x,y-j,2] == key[2]:
                             pixArray[x,y-j,0] = 0
                             pixArray[x,y-j,1] = 0
-                            pixArray[x,y-j,2] = 0
+                            pixArray[x,y-j,2] = 0 
                     if y + j < surf.get_height():
                         if pixArray[x,y+j,0] == key[0] and pixArray[x,y+j,1] == key[1] and pixArray[x,y+j,2] == key[2]:
                             pixArray[x,y+j,0] = 0
@@ -192,6 +199,7 @@ def outline(surf, key, size):
     surf = py.surfarray.make_surface(pixArray)
     return surf
 
+#keeps track of water
 class water():
     def __init__(self):
         self.water = 9999
@@ -207,6 +215,7 @@ class water():
     def getText(self):
         return self.waterText
     
+#keeps track of money 
 class money():
     def __init__(self):
         self.money = 99999
@@ -226,6 +235,7 @@ currentLives = lives()
 waterSupply = water()
 currentMoney = money()
 
+#Unfinished
 class weather():
     def __init__(self):
         self.freq = 1
@@ -234,7 +244,8 @@ class weather():
 
     def generateNext(self):
         self.weather.pop(6)
-    
+
+#This is the starting tower of the game
 class rinser(py.sprite.Sprite):
     def __init__(self, pos):
         upgrades = black
@@ -274,6 +285,8 @@ class rinser(py.sprite.Sprite):
         self.image = outline(self.image, (107, 112, 0), 6)
         self.image.set_colorkey((107,112,0))
 
+#The robot increases its speed and HP with energy
+#indicated by the color of the robot: Green > Blue > Orange > Red
 class robot(py.sprite.Sprite):
     def __init__(self, color, BFR):
         super().__init__()
@@ -355,12 +368,30 @@ class robot(py.sprite.Sprite):
             currentLives.change(self.HP * -1)
             self.kill()
 
+class roundManager():
+    def __init__(self):
+        self.round = 1
+    
+    def startNextRound(self):
+        
+        if round == 30:
+            state.victory
+        else:
+            self.round += 1
+
+    def getRound(self):
+        return self.round
+
+    def Reset(self):
+        self.round = 1
+
 
 while running:
     for event in py.event.get():
         if event.type == py.QUIT:
             running = False
     
+    #Main Menu animation
     if state == States.mainMenu:
         introRunning = True
         introDone = False
@@ -424,6 +455,7 @@ while running:
                         introRunning = False
                         state = States.transition
 
+    #This only exists to create a black transistion between game states
     if state == States.transition:
         transitioning = True
         j = 0
@@ -451,6 +483,7 @@ while running:
                 if event.type == py.QUIT:
                     running = False
 
+    #This is the main game stuff
     if state == States.mainGame:
         gameRunning = True
         j = 0
@@ -515,6 +548,7 @@ while running:
             py.display.flip()
             clock.tick(60)
             
+            #checks whats being pressed and click
             for event in py.event.get():
                 mouse = py.mouse.get_pos()
                 if event.type == py.QUIT:
@@ -528,6 +562,7 @@ while running:
         if event.type == py.QUIT:
             running = False
 
+    #keep this
     py.display.flip()
     clock.tick(60)
 
