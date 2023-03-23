@@ -522,7 +522,7 @@ while running:
                     gameRunning = False
                 if event.type == py.MOUSEBUTTONDOWN:
                     if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)):
-                        pass
+                        print("poo")
 
     for event in py.event.get():
         if event.type == py.QUIT:
