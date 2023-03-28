@@ -293,7 +293,7 @@ class rinser(py.sprite.Sprite):
 #The robot increases its speed and HP with energy
 #indicated by the color of the robot: Green > Blue > Orange > Red
 class robot(py.sprite.Sprite):
-    def __init__(self, color, BFR):
+    def __init__(self, color):
         super().__init__()
         self.robotMoves = ((-100, 102), (290, 102), (290, 400), (790, 400), (790, 102), (1160, 102), (1160, 490), (90, 490), (90, 700))
         self.image = py.Surface((76,76))
@@ -302,33 +302,21 @@ class robot(py.sprite.Sprite):
         self.moveNum = 1
 
         if self.charge == "r":
-            if BFR:
-                self.HP = 20
-            else:
                 self.HP = 2
-            self.outline = redCharge
-            self.speed = 50
+                self.outline = redCharge
+                self.speed = 50
         elif self.charge == "o":
-            if BFR:
-                self.HP = 40
-            else:
                 self.HP = 5
-            self.outline = orangeCharge
-            self.speed = 65
+                self.outline = orangeCharge
+                self.speed = 65
         elif self.charge == "b":
-            if BFR:
-                self.HP = 60
-            else:
                 self.HP = 10
-            self.outline = blueCharge
-            self.speed = 80
+                self.outline = blueCharge
+                self.speed = 80
         elif self.charge == "g":
-            if BFR:
-                self.HP = 80
-            else:
                 self.HP = 15
-            self.outline = greenCharge
-            self.speed = 100
+                self.outline = greenCharge
+                self.speed = 100
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
         pydraw.filled_circle(self.image, 38, 38, 34, black)
@@ -373,15 +361,44 @@ class robot(py.sprite.Sprite):
             currentLives.change(self.HP * -1)
             self.kill()
 
+
 class roundManager():
     def __init__(self):
         self.round = 1
+        self.waves = ((1,1,1,1,1), (10,0,0,0,1))
     
     def startNextRound(self):
-        
+        self.lowTime = py.time.get_ticks()
         if round == 30:
-            state.victory
+            return States.victory
         else:
+            self.sending = True
+            self.robotR = self.waves[(self.round-1)][0]
+            self.robotO = self.waves[(self.round-1)][1]
+            self.robotB = self.waves[(self.round-1)][2]
+            self.robotG = self.waves[(self.round-1)][3]
+            self.timePerBot = self.waves[self.round-1][4] * 1000
+            while self.sending:
+                if self.lowTime <= py.time.get_ticks() - self.timePerBot:
+                    if self.robotR > 0:
+                        self.sentBot = robot("r")
+                        self.robotR -= 1
+                    elif self.robotO > 0:
+                        self.sentBot = robot("o")
+                        self.robotO -= 1
+                    elif self.robotB > 0:
+                        self.sentBot = robot("b")
+                        self.robotB -= 1
+                    elif self.robotG > 0:
+                        self.sentBot = robot("g")
+                        self.robotG -= 1
+                    else:
+                        self.sending = False
+                    
+                    if self.sending:
+                        print("done")
+                        spriteList.add(self.sentBot)
+                        self.lowTime = py.time.get_ticks()
             self.round += 1
 
     def getRound(self):
@@ -490,18 +507,19 @@ while running:
 
     #This is the main game stuff
     if state == States.mainGame:
+        gamelogic = roundManager()
+
         gameRunning = True
         j = 0
-        test = robot("r", False)
-        test2 = robot("g", False)
-        spriteList.add(test)
-        spriteList.add(test2)
-        test3 = rinser((200,200))
-        spriteList.add(test3)
+        #test = robot("r", False)
+        #test2 = robot("g", False)
+        #spriteList.add(test)
+        #spriteList.add(test2)
+        #test3 = rinser((200,200))
+        #spriteList.add(test3)
         while gameRunning:
             if j < 2000:
                 j = j + 2.5
-
             pydraw.box(screen, ((0,0),(1280,720)), grassGreen)
 
             pydraw.box(screen, ((-10, 100), (300, 80)), grayRoad)
@@ -561,7 +579,7 @@ while running:
                     gameRunning = False
                 if event.type == py.MOUSEBUTTONDOWN:
                     if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)):
-                        print("poo")
+                        gamelogic.startNextRound()
 
     for event in py.event.get():
         if event.type == py.QUIT:
