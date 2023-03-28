@@ -248,25 +248,29 @@ class weather():
 #This is the starting tower of the game
 class rinser(py.sprite.Sprite):
     def __init__(self, pos):
-        upgrades = black
+
+        #Declaration stuff
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
         
+        #Body
         pydraw.box(self.image, ((-2,-2), (104,104)), black)
         pydraw.filled_circle(self.image, 50, 50, 44, black)
         pydraw.filled_circle(self.image, 30, 40, 14, black)
         pydraw.filled_circle(self.image, 70, 40, 14, black)
         pydraw.filled_circle(self.image, 70, 40, 8, black)
         pydraw.filled_circle(self.image, 30, 40, 8, black)
-
         pydraw.box(self.image, ((0,0), (100,100)), (107, 112, 0))
         pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
+
+        #Eyes
         pydraw.filled_circle(self.image, 30, 40, 10, white)
         pydraw.filled_circle(self.image, 70, 40, 10, white)
         pydraw.filled_circle(self.image, 70, 40, 4, (0, 169, 223))
         pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
 
+        #Hair & Smile
         for i in range(0,20):
             pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30),random.randint(5,95),random.randint(5,30), (100, 69, 35))
         pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, black)
@@ -282,6 +286,7 @@ class rinser(py.sprite.Sprite):
         pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 67))
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+
         self.image = outline(self.image, (107, 112, 0), 6)
         self.image.set_colorkey((107,112,0))
 
