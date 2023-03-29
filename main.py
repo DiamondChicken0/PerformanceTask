@@ -313,11 +313,11 @@ class robot(py.sprite.Sprite):
         elif self.charge == "b":
                 self.HP = 10
                 self.outline = blueCharge
-                self.speed = 105
+                self.speed = 130
         elif self.charge == "g":
                 self.HP = 15
                 self.outline = greenCharge
-                self.speed = 130
+                self.speed = 180
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
         pydraw.filled_circle(self.image, 38, 38, 34, black)
@@ -361,8 +361,6 @@ class robot(py.sprite.Sprite):
         else:
             currentLives.change(self.HP * -1)
             self.kill()
-        print(int(clock.get_fps()))
-
 
 class roundManager():
     def __init__(self):
@@ -398,13 +396,12 @@ class roundManager():
                         self.sending = False
                     
                     if self.sending:
-                        print("done")
                         spriteList.add(self.sentBot)
                         self.lowTime = py.time.get_ticks()
-                        print(spriteList)
                         
                     #spriteList.update()
                 #spriteList.draw(screen)
+                clock.tick(60)
             self.round += 1
 
     def isSending(self):
@@ -521,12 +518,6 @@ while running:
 
         gameRunning = True
         j = 0
-        #test = robot("r", False)
-        #test2 = robot("g", False)
-        #spriteList.add(test)
-        #spriteList.add(test2)
-        #test3 = rinser((200,200))
-        #spriteList.add(test3)
         while gameRunning:
             if j < 2000:
                 j = j + 2.5
@@ -588,7 +579,6 @@ while running:
                     running = False
                     gameRunning = False
                 if event.type == py.MOUSEBUTTONDOWN:
-                    print("still working")
                     if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)):
                         logicThread = threading.Thread(target=gamelogic.startNextRound)
                         logicThread.start()
