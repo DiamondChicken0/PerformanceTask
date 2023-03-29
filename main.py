@@ -6,6 +6,7 @@ from enum import Enum
 import math
 import random
 import numpy
+import threading
 py.init()
 py.font.init()
 random.seed()
@@ -308,15 +309,15 @@ class robot(py.sprite.Sprite):
         elif self.charge == "o":
                 self.HP = 5
                 self.outline = orangeCharge
-                self.speed = 65
+                self.speed = 100
         elif self.charge == "b":
                 self.HP = 10
                 self.outline = blueCharge
-                self.speed = 80
+                self.speed = 105
         elif self.charge == "g":
                 self.HP = 15
                 self.outline = greenCharge
-                self.speed = 100
+                self.speed = 130
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
         pydraw.filled_circle(self.image, 38, 38, 34, black)
@@ -324,7 +325,7 @@ class robot(py.sprite.Sprite):
         pydraw.filled_circle(self.image, 30, 21, 4, self.outline)
         pydraw.filled_circle(self.image, 30, 55, 4, self.outline)
         pydraw.box(self.image, ((46,18),(4,40)), self.outline)
-        
+        self.image.set_colorkey(grayRoad)
         self.rect = self.image.get_rect()
         self.rect.x = self.robotMoves[0][0]
         self.rect.y = self.robotMoves[0][1]
@@ -360,12 +361,13 @@ class robot(py.sprite.Sprite):
         else:
             currentLives.change(self.HP * -1)
             self.kill()
+        print(int(clock.get_fps()))
 
 
 class roundManager():
     def __init__(self):
         self.round = 1
-        self.waves = ((1,1,1,1,1), (10,0,0,0,1))
+        self.waves = ((3,3,3,3,.75), (10,0,0,0,1))
     
     def startNextRound(self):
         self.lowTime = py.time.get_ticks()
@@ -399,8 +401,15 @@ class roundManager():
                         print("done")
                         spriteList.add(self.sentBot)
                         self.lowTime = py.time.get_ticks()
+                        print(spriteList)
+                        
+                    #spriteList.update()
+                #spriteList.draw(screen)
             self.round += 1
 
+    def isSending(self):
+        return self.sending
+    
     def getRound(self):
         return self.round
 
@@ -492,6 +501,7 @@ while running:
             else:
                 transitioning = False
                 state = States.mainGame
+                
             
             pydraw.box(screen, ((-2000 + j, 0),(2000,2000)), black)
             pydraw.box(screen, ((1280 - j, 0),(2000,2000)), black)
@@ -578,8 +588,11 @@ while running:
                     running = False
                     gameRunning = False
                 if event.type == py.MOUSEBUTTONDOWN:
+                    print("still working")
                     if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)):
-                        gamelogic.startNextRound()
+                        logicThread = threading.Thread(target=gamelogic.startNextRound)
+                        logicThread.start()
+                        
 
     for event in py.event.get():
         if event.type == py.QUIT:
