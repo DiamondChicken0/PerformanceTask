@@ -399,8 +399,6 @@ class roundManager():
                         spriteList.add(self.sentBot)
                         self.lowTime = py.time.get_ticks()
                         
-                    #spriteList.update()
-                #spriteList.draw(screen)
                 clock.tick(60)
             self.round += 1
 
@@ -518,6 +516,7 @@ while running:
 
         gameRunning = True
         j = 0
+
         while gameRunning:
             if j < 2000:
                 j = j + 2.5
