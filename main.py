@@ -305,19 +305,19 @@ class robot(py.sprite.Sprite):
         if self.charge == "r":
                 self.HP = 2
                 self.outline = redCharge
-                self.speed = 50
+                self.speed = 1
         elif self.charge == "o":
                 self.HP = 5
                 self.outline = orangeCharge
-                self.speed = 100
+                self.speed = 2
         elif self.charge == "b":
                 self.HP = 10
                 self.outline = blueCharge
-                self.speed = 130
+                self.speed = 3
         elif self.charge == "g":
                 self.HP = 15
                 self.outline = greenCharge
-                self.speed = 180
+                self.speed = 4
 
         pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
         pydraw.filled_circle(self.image, 38, 38, 34, black)
@@ -335,27 +335,33 @@ class robot(py.sprite.Sprite):
         self.storedAngle = self.storedAngle % 360
         if self.moveNum < self.robotMoves.__len__():
             if self.rect.x < self.robotMoves[self.moveNum][0]:
-                self.rect.x += 2 * (self.speed)/100
+                self.rect.x += self.speed
                 if self.storedAngle != 90:
                     self.image = py.transform.rotate(self.image, 90)
-                    self.storedAngle += 90
+                    self.storedAngle = 90
             elif self.rect.x > self.robotMoves[self.moveNum][0]:
-                self.rect.x -= 2 * (self.speed)/100
+                self.rect.x -= self.speed
                 if self.storedAngle != 270:
                     self.image = py.transform.rotate(self.image, 90)
-                    self.storedAngle += 90
+                    self.storedAngle = 270
             if self.rect.y < self.robotMoves[self.moveNum][1]:
-                self.rect.y += 2 * (self.speed)/100
+                self.rect.y += self.speed
                 if self.storedAngle != 0:
                     self.image = py.transform.rotate(self.image, 90)
-                    self.storedAngle += 90
+                    self.storedAngle = 0
             elif self.rect.y > self.robotMoves[self.moveNum][1]:
-                self.rect.y -= 2 * (self.speed)/100
+                self.rect.y -= self.speed
                 if self.storedAngle != 180:
                     self.image = py.transform.rotate(self.image, 90)
-                    self.storedAngle += 90
+                    self.storedAngle = 180
 
-            if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
+            #if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
+                #self.moveNum += 1
+            
+            #I cant be bothered making this airtight, its close enough
+            if abs(self.rect.x - self.robotMoves[self.moveNum][0]  + self.rect.y - self.robotMoves[self.moveNum][1]) < 5:
+                self.rect.x = self.robotMoves[self.moveNum][0]
+                self.rect.y = self.robotMoves[self.moveNum][1]
                 self.moveNum += 1
                 
         else:
