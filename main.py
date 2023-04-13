@@ -252,8 +252,12 @@ class money():
         self.moneyText = hudFont.render(str(self.money), True, white)
 
     def change(self, amount):
-        self.money += amount 
-        self.moneyText = hudFont.render(str(self.money), True, white)
+        if self.money + amount >= 0:
+            self.money += amount 
+            self.moneyText = hudFont.render(str(self.money), True, white)
+            return True
+        return False
+        
 
     def get(self):
         return self.money
@@ -306,6 +310,7 @@ class robot(py.sprite.Sprite):
         self.storedAngle = 90
 
     def update(self):
+
         self.storedAngle = self.storedAngle % 360
         if self.moveNum < self.robotMoves.__len__():
             if self.rect.x < self.robotMoves[self.moveNum][0]:
@@ -328,9 +333,6 @@ class robot(py.sprite.Sprite):
                 if self.storedAngle != 180:
                     self.image = py.transform.rotate(self.image, 90)
                     self.storedAngle = 180
-
-            #if self.rect.x == self.robotMoves[self.moveNum][0] and self.rect.y == self.robotMoves[self.moveNum][1]:
-                #self.moveNum += 1
             
             #I cant be bothered making this airtight, its close enough
             if abs(self.rect.x - self.robotMoves[self.moveNum][0]  + self.rect.y - self.robotMoves[self.moveNum][1]) < 5:
@@ -344,15 +346,68 @@ class robot(py.sprite.Sprite):
     
     def getPos(self):
         return (self.rect.x, self.rect.y)
+    
+    def damage(self, dmg):
+        self.HP -= dmg
+        if self.HP <= 0:
+            self.kill()
+        elif self.HP <= 2:
+            self.charge = "r"
+            self.outline = redCharge
+            self.speed = 1
+        elif self.HP <= 5:
+            self.charge = "o"
+            self.outline = orangeCharge
+            self.speed = 2
+        elif self.HP <= 10:
+            self.charge = "b"
+            self.outline = blueCharge
+            self.speed = 3
+        
+        pydraw.box(self.image, ((0,0), (76,76)), grayRoad)
+        pydraw.filled_circle(self.image, 38, 38, 34, black)
+        pydraw.filled_circle(self.image, 38, 38, 30, robotGray)
+        pydraw.filled_circle(self.image, 30, 21, 4, self.outline)
+        pydraw.filled_circle(self.image, 30, 55, 4, self.outline)
+        pydraw.box(self.image, ((46,18),(4,40)), self.outline)
+
+        self.image = py.transform.rotate(self.image, self.storedAngle - 90)
+
+        
+
 
 def towerTarget(mask, offset):
+    index = -1
     for x in robotList:
+        index += 1
         try:
             if mask.get_at((x.getPos()[0] - offset, (x.getPos()[1]) - offset)) == 1:
-                return((x.getPos()))
+                return((x.getPos()), index)
         except:
             pass
     return None
+
+def makeDottedLine(startx, starty, endx, endy):
+    tempScreen = py.Surface((1280,720))
+    tempScreen.fill((255,255,255))
+    pydraw.line(tempScreen, startx, starty, endx, endy, oceanBlue)
+    pydraw.line(tempScreen, startx, starty+1, endx-1, endy, oceanBlue)
+    pydraw.line(tempScreen, startx+1, starty, endx, endy-1, oceanBlue)
+    pydraw.line(tempScreen, startx+2, starty, endx, endy-2, oceanBlue)
+    pydraw.line(tempScreen, startx, starty+2, endx-2, endy, oceanBlue)
+    tempPix = py.PixelArray(tempScreen)
+    for x in range(0,endx,30):
+        for y in range(0,endy):
+            if tempPix[x][y] == oceanBlue:
+                tempPix[x-1:x][y-1:y-2] == (255,255,255)
+                tempPix[x+1:x][y-3:y-2] == (255,255,255)
+    tempPix.close()
+    tempScreen.set_colorkey((255,255,255))
+    tempScreen.unlock()
+    screen.unlock()
+    screen.blit(tempScreen, (0,0))
+    return tempScreen
+
 
 #This is the starting tower of the game
 class rinser(py.sprite.Sprite):
@@ -365,8 +420,7 @@ class rinser(py.sprite.Sprite):
         self.selected = selected
         self.placedDown = False
         self.storedAngle = 0 #Looking Down
-        #self.rangeSurf = py.Surface((1280,720))
-        #pydraw.filled_circle(self.rangeSurf, 0,0,200, white)
+        self.lowTime = py.time.get_ticks()
         
         #Body
         pydraw.box(self.image, ((-2,-2), (104,104)), black)
@@ -378,24 +432,6 @@ class rinser(py.sprite.Sprite):
         pydraw.box(self.image, ((0,0), (100,100)), (107, 112, 0))
         pydraw.filled_circle(self.image, 50, 50, 40, rinserTone)
 
-        #Eyes
-        #pydraw.filled_circle(self.image, 30, 40, 10, white)
-        #pydraw.filled_circle(self.image, 70, 40, 10, white)
-        #pydraw.filled_3circle(self.image, 70, 40, 4, (0, 169, 223))
-        #pydraw.filled_circle(self.image, 30, 40, 4, (0, 169, 223))
-
-        #Hair & Smile
-        #for i in range(0,30):
-            #pydraw.filled_trigon(self.image, random.randint(5,95),random.randint(5,90),random.randint(5,95),random.randint(5,90),random.randint(5,95),random.randint(5,90), (100, 69, 35))
-        #pydraw.bezier(self.image, [(25,70),(50,85),(75,70)], 100, black)
-        #pydraw.bezier(self.image, [(25,71),(50,86),(75,71)], 100, black)
-        #pydraw.bezier(self.image, [(25,72),(50,87),(75,72)], 100, black)
-        #pydraw.line(self.image, 45,60,55,60, black)
-        #pydraw.line(self.image, 45,61,55,61, black)
-        #pydraw.line(self.image, 45,62,55,62, black)
-        #pydraw.line(self.image, 50,50,55,60, black)
-        #pydraw.line(self.image, 50,51,55,60, black)
-        #pydraw.line(self.image, 50,52,55,60, black)
         pydraw.box(self.image,(5,40,10,30), (249, 171, 27))
         pydraw.filled_trigon(self.image,5,70,10,75,15,70,(255, 116, 67))
         pydraw.filled_polygon(self.image,[(6,70),(7,85),(25,85),(40,87),(54,79),(67,86),(80,78),(98,85),(90,78),(97,57),(90,36),(96,6),(80,20),(57,6),(40,10),(19,7),(6,30),(14,40),(5,49),(14,61)], rinserHair)
@@ -405,10 +441,9 @@ class rinser(py.sprite.Sprite):
 
         self.image = outline(self.image, (107, 112, 0), 6)
         self.image.set_colorkey((107,112,0))
+
+        self.original = self.image.copy()
         self.image.set_alpha(75)
-        #self.mask = py.mask.from_surface(self.image)
-        #self.maskImage = self.mask.to_surface()
-        #self.image.blit(self.maskImage,(0,0))
 
     def update(self):
         if not self.placedDown:
@@ -416,28 +451,27 @@ class rinser(py.sprite.Sprite):
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
-                
-                if unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0:
-                    self.image.set_alpha(255)
-                    self.placedDown = True
-                else:
-                    self.kill()
+                try:
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
+                        if currentMoney.change(-500) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                    else:
+                        self.kill()
+                except:
+                    pass
         else:
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
-            #screen.blit(self.mask.to_surface(), (50,50))
+            if self.lowTime <= py.time.get_ticks() - 1000:
+                if towerTarget(self.mask,50) != None:
+                    self.lowTime = py.time.get_ticks()
+                    self.targetPoint = towerTarget(self.mask,50)
+                    self.newAngle = math.degrees(math.atan2((self.targetPoint[0][0] - self.rect.x) * -1, self.targetPoint[0][1] - self.rect.y) % (2 * math.pi))
+                    robotList.sprites()[self.targetPoint[1]].damage(2)
+                    makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
+                    if abs(self.newAngle - self.storedAngle) > 1:
+                        self.image = py.transform.rotate(self.original, int((self.newAngle - self.storedAngle) * -1))
 
-            if towerTarget(self.mask,50) != None:
-                self.targetPoint = towerTarget(self.mask,50)
-                #self.image = py.transform.rotate(self.image, (math.atan2(self.targetPoint[0] - self.rect.x, self.targetPoint[1] - self.rect.y)) - self.storedAngle)
-                #self.storedAngle = math.atan2(self.targetPoint[0] - self.rect.x, self.targetPoint[1] - self.rect.y)
-                #print(str(math.degrees(math.atan2((self.targetPoint[0] - self.rect.x) * -1, self.targetPoint[1] - self.rect.y) % 2 * math.pi)))
-                self.newAngle = math.degrees(math.atan2((self.targetPoint[0] - self.rect.x) * -1, self.targetPoint[1] - self.rect.y) % (2 * math.pi))
-                #print(self.newAngle)
-                if abs(self.newAngle - self.storedAngle) > 1:
-                    self.image = py.transform.rotate(self.image, int((self.newAngle - self.storedAngle) * -1))
-                    print(self.newAngle - self.storedAngle)
-                
-                    self.storedAngle = self.newAngle
     def unselect(self):
         self.selected = False
 
@@ -494,7 +528,8 @@ class pump(py.sprite.Sprite):
 class roundManager():
     def __init__(self):
         self.round = 1
-        self.waves = ((1,0,0,0,.75), (10,0,0,0,1))
+        self.waves = ((0,5,5,0,.75), (10,0,0,0,1))
+        self.sending = False
     
     def startNextRound(self):
         self.lowTime = py.time.get_ticks()
@@ -670,12 +705,21 @@ while running:
 
             pydraw.box(screen, ((880, 190), (270, 290)), oceanBlue)
             pydraw.box(waterScreen, ((880, 190), (270, 290)), oceanBlue)
-
-            spriteList.update()
-            spriteList.draw(screen)
-
             pydraw.box(screen, ((0,0),(1280, 95)), black)
 
+            unplaceableScreen.set_colorkey((0,0,0))
+            waterScreen.set_colorkey((0,0,0))
+            unplaceableMask = py.mask.from_surface(unplaceableScreen)
+            waterMask = py.mask.from_surface(waterScreen)
+            tempList.update()
+            tempList.draw(screen)
+            robotList.update()
+            robotList.draw(screen)
+            towerList.update()
+            towerList.draw(screen)
+            spriteList.update()
+            spriteList.draw(screen)
+            
             pydraw.box(screen, ((0, 0),(1280, 90)), darkWood)
             pydraw.box(unplaceableScreen, ((0, 0),(1280, 90)), darkWood)
 
@@ -716,21 +760,6 @@ while running:
             screen.blit(waterCollectorText2, (840,675))
             screen.blit(waterPumpText1, (995,645))
             screen.blit(waterPumpText2, (995,675))
-
-            unplaceableScreen.set_colorkey((0,0,0))
-            waterScreen.set_colorkey((0,0,0))
-            unplaceableMask = py.mask.from_surface(unplaceableScreen)
-            waterMask = py.mask.from_surface(waterScreen)
-            #unplaceableScreen = unplaceableMask.to_surface(setcolor=(255,0,0))
-            #screen.blit(unplaceableScreen,(0,0))
-            tempList.update()
-            tempList.draw(screen)
-            robotList.update()
-            robotList.draw(screen)
-            towerList.update()
-            towerList.draw(screen)
-            spriteList.update()
-            spriteList.draw(screen) 
             py.display.flip()
             clock.tick(60)
 
@@ -741,7 +770,7 @@ while running:
                     running = False
                     gameRunning = False
                 if event.type == py.MOUSEBUTTONDOWN:
-                    if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)):
+                    if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)) and gamelogic.isSending() == False:
                         logicThread = threading.Thread(target=gamelogic.startNextRound)
                         logicThread.start()
                     if ((mouse[0] > 65 and mouse[0] < 205) and (mouse[1] > 640 and mouse[1] < 720)):
@@ -755,11 +784,6 @@ while running:
                         print("worked2")
                     except:
                         pass
-                    
-                    
-
-                
-                        
 
     for event in py.event.get():
         if event.type == py.QUIT:
