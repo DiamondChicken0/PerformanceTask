@@ -232,12 +232,15 @@ def outline(surf, key, size):
 #keeps track of water
 class water():
     def __init__(self):
-        self.water = 9999
+        self.water = 500
         self.waterText = hudFont.render(str(self.water), True, white)
 
     def change(self, amount):
-        self.water += amount
-        self.waterText = hudFont.render(str(self.water), True, white)
+        if self.water + amount >= 0:
+            self.water += amount
+            self.waterText = hudFont.render(str(self.water), True, white)
+            return True
+        return False
 
     def get(self):
         return self.water
@@ -248,7 +251,7 @@ class water():
 #keeps track of money 
 class money():
     def __init__(self):
-        self.money = 99999
+        self.money = 1000
         self.moneyText = hudFont.render(str(self.money), True, white)
 
     def change(self, amount):
@@ -456,6 +459,8 @@ class rinser(py.sprite.Sprite):
                         if currentMoney.change(-500) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
+                        else:
+                            self.kill()
                     else:
                         self.kill()
                 except:
@@ -463,26 +468,64 @@ class rinser(py.sprite.Sprite):
         else:
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
             if self.lowTime <= py.time.get_ticks() - 1000:
-                if towerTarget(self.mask,50) != None:
+                if towerTarget(self.mask,50) != None and waterSupply.change(-1):
                     self.lowTime = py.time.get_ticks()
                     self.targetPoint = towerTarget(self.mask,50)
                     self.newAngle = math.degrees(math.atan2((self.targetPoint[0][0] - self.rect.x) * -1, self.targetPoint[0][1] - self.rect.y) % (2 * math.pi))
                     robotList.sprites()[self.targetPoint[1]].damage(2)
-                    makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
+                    waterLine = makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
+                    screen.blit(waterLine,(0,0))
                     if abs(self.newAngle - self.storedAngle) > 1:
                         self.image = py.transform.rotate(self.original, int((self.newAngle - self.storedAngle) * -1))
-
     def unselect(self):
         self.selected = False
 
 
 class fountain(py.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, selected):
 
         #Declaration stuff
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
+        self.image.fill((255,255,255))
+        self.lowTime = py.time.get_ticks()
+        self.selected = selected
+        self.placedDown = False
+        pydraw.filled_ellipse(self.image, 50, 25, 40, 15, (0, 102, 255))
+        pydraw.filled_ellipse(self.image, 50, 75, 40, 15, (0, 102, 255))
+        pydraw.box(self.image, ((10,25), (80,50)), (0, 102, 255))
+        pydraw.aaellipse(self.image, 50, 25, 30, 10, black)
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.image = outline(self.image, (255,255,255), 6)
+        self.image.set_colorkey((255,255,255))
+        self.image.set_alpha(75)
+
+        self.update(self)
+        if not self.placedDown:
+            if self.selected: 
+                self.rect.x = py.mouse.get_pos()[0]
+                self.rect.y = py.mouse.get_pos()[1]
+            else:
+                try:
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
+                        if currentMoney.change(-300) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                        else:
+                            self.kill()
+                    else:
+                        self.kill()
+                except:
+                    pass
+        else:
+            if roundManager.isSending() == True and self.lowTime <= py.time.get_ticks() - 10000:
+                waterSupply.change(20)
+                
+    def unselect(self):
+        self.selected = False
+
 
 class ship(py.sprite.Sprite):
     def __init__(self, pos):
@@ -528,7 +571,7 @@ class pump(py.sprite.Sprite):
 class roundManager():
     def __init__(self):
         self.round = 1
-        self.waves = ((0,5,5,0,.75), (10,0,0,0,1))
+        self.waves = ((5,0,0,0,.5), (10,0,0,0,1))
         self.sending = False
     
     def startNextRound(self):
@@ -775,6 +818,9 @@ while running:
                         logicThread.start()
                     if ((mouse[0] > 65 and mouse[0] < 205) and (mouse[1] > 640 and mouse[1] < 720)):
                         selectedTower = rinser((mouse[0], mouse[1]), True)
+                        tempList.add(selectedTower)
+                    if ((mouse[0] > 215 and mouse[0] < 355) and (mouse[1] > 640 and mouse[1 < 720])):
+                        selectedTower = fountain((mouse[0], mouse[1]), True)
                         tempList.add(selectedTower)
                 if event.type == py.MOUSEBUTTONUP:
                     tempList.empty()
