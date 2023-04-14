@@ -210,11 +210,31 @@ def outline(surf, key, size):
                             pixArray[x-j,y,0] = 0
                             pixArray[x-j,y,1] = 0
                             pixArray[x-j,y,2] = 0
+                        if y + j < surf.get_height():
+                            if pixArray[x-j,y+j,0] == key[0] and pixArray[x-j,y+j,1] == key[1] and pixArray[x-j,y+j,2] == key[2]:
+                                pixArray[x-j,y+j,0] = 0
+                                pixArray[x-j,y+j,1] = 0
+                                pixArray[x-j,y+j,2] = 0
+                        if y - j >= 0:
+                            if pixArray[x-j,y-j,0] == key[0] and pixArray[x-j,y-j,1] == key[1] and pixArray[x-j,y-j,2] == key[2]:
+                                pixArray[x-j,y-j,0] = 0
+                                pixArray[x-j,y-j,1] = 0
+                                pixArray[x-j,y-j,2] = 0 
                     if x + j < surf.get_width():
                         if pixArray[x+j,y,0] == key[0] and pixArray[x+j,y,1] == key[1] and pixArray[x+j,y,2] == key[2]:
                             pixArray[x+j,y,0] = 0
                             pixArray[x+j,y,1] = 0
                             pixArray[x+j,y,2] = 0
+                        if y + j < surf.get_height():
+                            if pixArray[x+j,y+j,0] == key[0] and pixArray[x+j,y+j,1] == key[1] and pixArray[x+j,y+j,2] == key[2]:
+                                pixArray[x+j,y+j,0] = 0
+                                pixArray[x+j,y+j,1] = 0
+                                pixArray[x+j,y+j,2] = 0
+                        if y - j >= 0:
+                            if pixArray[x+j,y-j,0] == key[0] and pixArray[x+j,y-j,1] == key[1] and pixArray[x+j,y-j,2] == key[2]:
+                                pixArray[x+j,y-j,0] = 0
+                                pixArray[x+j,y-j,1] = 0
+                                pixArray[x+j,y-j,2] = 0 
                     if y - j >= 0:
                         if pixArray[x,y-j,0] == key[0] and pixArray[x,y-j,1] == key[1] and pixArray[x,y-j,2] == key[2]:
                             pixArray[x,y-j,0] = 0
@@ -225,6 +245,7 @@ def outline(surf, key, size):
                             pixArray[x,y+j,0] = 0
                             pixArray[x,y+j,1] = 0
                             pixArray[x,y+j,2] = 0
+                        
 
     surf = py.surfarray.make_surface(pixArray)
     return surf
@@ -234,6 +255,7 @@ class water():
     def __init__(self):
         self.water = 500
         self.waterText = hudFont.render(str(self.water), True, white)
+        self.sinkage = 10
 
     def change(self, amount):
         if self.water + amount >= 0:
@@ -248,10 +270,17 @@ class water():
     def getText(self):
         return self.waterText
     
+    def sink(self, amount):
+        self.sinkage += amount
+        if self.sinkage >= 10:
+            self.sinkage = 10
+        elif self.sinkage <= 0:
+            towerList.sink()
+    
 #keeps track of money 
 class money():
     def __init__(self):
-        self.money = 1000
+        self.money = 3000
         self.moneyText = hudFont.render(str(self.money), True, white)
 
     def change(self, amount):
@@ -379,16 +408,28 @@ class robot(py.sprite.Sprite):
         
 
 
-def towerTarget(mask, offset):
+def towerTarget(mask, offset, list):
     index = -1
-    for x in robotList:
-        index += 1
-        try:
-            if mask.get_at((x.getPos()[0] - offset, (x.getPos()[1]) - offset)) == 1:
-                return((x.getPos()), index)
-        except:
-            pass
-    return None
+    if list == False:
+        for x in robotList:
+            index += 1
+            try:
+                if mask.get_at((x.getPos()[0] - offset, (x.getPos()[1]) - offset)) == 1:
+                    return((x.getPos()), index)
+            except:
+                pass
+        return None
+    else:
+        robotsNearbyList = []
+        for x in robotList:
+            index += 1
+            try:
+                if mask.get_at((x.getPos()[0] - offset, (x.getPos()[1]) - offset)) == 1:
+                    robotsNearbyList.append(index)
+            except:
+                pass
+        return robotsNearbyList
+        
 
 def makeDottedLine(startx, starty, endx, endy):
     tempScreen = py.Surface((1280,720))
@@ -459,18 +500,20 @@ class rinser(py.sprite.Sprite):
                         if currentMoney.change(-500) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
                             self.kill()
                     else:
                         self.kill()
                 except:
-                    pass
+                    self.kill()
         else:
-            self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
+            self.mask = makeRadiusMask((self.rect.x, self.rect.y), 300)
             if self.lowTime <= py.time.get_ticks() - 1000:
-                if towerTarget(self.mask,50) != None and waterSupply.change(-1):
+                if towerTarget(self.mask,50, False) != None and waterSupply.change(-1):
                     self.lowTime = py.time.get_ticks()
-                    self.targetPoint = towerTarget(self.mask,50)
+                    self.targetPoint = towerTarget(self.mask,50,False)
                     self.newAngle = math.degrees(math.atan2((self.targetPoint[0][0] - self.rect.x) * -1, self.targetPoint[0][1] - self.rect.y) % (2 * math.pi))
                     robotList.sprites()[self.targetPoint[1]].damage(2)
                     waterLine = makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
@@ -479,9 +522,260 @@ class rinser(py.sprite.Sprite):
                         self.image = py.transform.rotate(self.original, int((self.newAngle - self.storedAngle) * -1))
     def unselect(self):
         self.selected = False
+    
+    def sink(self):
+        pass
 
 
 class fountain(py.sprite.Sprite):
+    def __init__(self, pos, selected):
+
+        #Declaration stuff
+        super().__init__()
+        self.image = py.Surface((100,100))
+        self.rect = self.image.get_rect()
+        self.selected = selected
+        self.placedDown = False
+        self.storedAngle = 0 #Looking Down
+        self.lowTime = py.time.get_ticks()
+        
+        
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+        self.image = outline(self.image, (107, 112, 0), 6)
+        self.image.set_colorkey((107,112,0))
+
+        self.original = self.image.copy()
+        self.image.set_alpha(75)
+
+    def update(self):
+        if not self.placedDown:
+            if self.selected: 
+                self.rect.x = py.mouse.get_pos()[0]
+                self.rect.y = py.mouse.get_pos()[1]
+            else:
+                try:
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
+                        if currentMoney.change(-500) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
+                        else:
+                            self.kill()
+                    else:
+                        self.kill()
+                except:
+                    self.kill()
+        else:
+            #FIX THIS
+            self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
+            if self.lowTime <= py.time.get_ticks() - 200:
+                if towerTarget(self.mask,50,False) != None and waterSupply.change(-1):
+                    self.lowTime = py.time.get_ticks()
+                    self.target = towerTarget(self.mask,50, True)
+                    for x in range(0, len(self.target)):
+                        robotList.sprites()[self.target[x]].damage(1)
+    def unselect(self):
+        self.selected = False
+
+    def sink(self):
+        pass
+
+class ship(py.sprite.Sprite):
+    def __init__(self, pos, selected):
+
+        #Declaration stuff
+        super().__init__()
+        self.image = py.Surface((100,100))
+        self.rect = self.image.get_rect()
+        self.selected = selected
+        self.placedDown = False
+        self.storedAngle = 90
+        self.lowTime = py.time.get_ticks()
+        self.image.fill((107,112,0))
+        
+        pydraw.box(self.image, ((25,25), (50,65)), (175,122,3))
+        pydraw.filled_trigon(self.image,25,25,75,25,50,5, (175,122,3))
+        pydraw.box(self.image, ((15,55),(10,8)), (255,193,7))
+        pydraw.box(self.image, ((75,55),(10,8)), (255,193,7))
+        pydraw.box(self.image, ((28,41),(44,23)), black)
+        pydraw.box(self.image, ((32,45),(12,15)), (3,102,204))
+        pydraw.box(self.image, ((44,45),(12,15)), white)
+        pydraw.box(self.image, ((56,45),(12,15)), (3,102,204))
+
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+        self.image = outline(self.image, (107, 112, 0), 6)
+        self.image.set_colorkey((107,112,0))
+
+        self.original = self.image.copy()
+        self.image.set_alpha(75)
+
+    def update(self):
+        if not self.placedDown:
+            if self.selected: 
+                self.rect.x = py.mouse.get_pos()[0]
+                self.rect.y = py.mouse.get_pos()[1]
+            else:
+                try:
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 1 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 1):
+                        if currentMoney.change(-1200) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
+                        else:
+                            self.kill()
+                    else:
+                        self.kill()
+                except:
+                    self.kill()
+        else:
+            self.mask = makeRadiusMask((self.rect.x, self.rect.y), 500)
+            if self.lowTime <= py.time.get_ticks() - 1000:
+                if towerTarget(self.mask,50, False) != None and waterSupply.change(-1):
+                    self.lowTime = py.time.get_ticks()
+                    self.targetPoint = towerTarget(self.mask,50,False)
+                    self.newAngle = math.degrees(math.atan2((self.targetPoint[0][0] - self.rect.x) * -1, self.targetPoint[0][1] - self.rect.y) % (2 * math.pi))
+                    robotList.sprites()[self.targetPoint[1]].damage(5)
+                    waterLine = makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
+                    screen.blit(waterLine,(0,0))
+                    if abs(self.newAngle - self.storedAngle) > 1:
+                        self.image = py.transform.rotate(self.original, int((self.newAngle - self.storedAngle) * -1))
+    def unselect(self):
+        self.selected = False
+
+    def sink(self):
+        self.kill()
+
+class snorkler(py.sprite.Sprite):
+    def __init__(self, pos, selected):
+
+        #Declaration stuff
+        super().__init__()
+        self.image = py.Surface((100,100))
+        self.rect = self.image.get_rect()
+        self.selected = selected
+        self.placedDown = False
+        self.lowTime = py.time.get_ticks()
+        self.image.fill(black)
+        self.image.fill((107,112,0))
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+        pydraw.box(self.image, ((18,10),(5,50)), (255,153,51))
+        pydraw.filled_circle(self.image, 35,50,15, (255,153,51))
+        pydraw.filled_circle(self.image, 65,50,15, (255,153,51))
+        pydraw.filled_circle(self.image, 35,50,12, (204,229,255))
+        pydraw.filled_circle(self.image, 65,50,12, (204,229,255))
+        pydraw.filled_circle(self.image, 40,55,3, black)
+        pydraw.filled_circle(self.image, 60,55,3, black)
+
+        
+
+        self.image = outline(self.image, (107, 112, 0), 6)
+        self.image.set_colorkey((107,112,0))
+
+        self.original = self.image.copy()
+        self.image.set_alpha(75)
+    
+
+    def update(self):
+        if not self.placedDown:
+            if self.selected: 
+                self.rect.x = py.mouse.get_pos()[0]
+                self.rect.y = py.mouse.get_pos()[1]
+            else:
+                try:
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 1 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 1):
+                        if currentMoney.change(-600) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
+                        else:
+                            self.kill()
+                    else:
+                        self.kill()
+                except:
+                    self.kill()
+        else:
+            if gamelogic.isSending() == True and self.lowTime <= py.time.get_ticks() - 7500:
+                if random.randint(1,10) == 9:
+                    currentMoney.change(500*random.randint(1,3))
+                else:
+                    currentMoney.change(200*random.randint(1,3))
+                self.lowTime = py.time.get_ticks()
+                
+    def unselect(self):
+        self.selected = False
+
+    def sink(self):
+        self.kill()
+
+class well(py.sprite.Sprite):
+    def __init__(self, pos, selected):
+
+        #Declaration stuff
+        super().__init__()
+        self.image = py.Surface((100,100))
+        self.rect = self.image.get_rect()
+        self.image.fill((107,112,0))
+        self.lowTime = py.time.get_ticks()
+        self.selected = selected
+        self.placedDown = False
+        
+        pydraw.filled_circle(self.image, 20,20, 10, white)
+
+        pydraw.filled_circle(self.image, 50,50, 10, white)
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.image = outline(self.image, (107,112,0), 6)
+        self.image.set_colorkey((107,112,0))
+        self.image.set_alpha(75)
+        self.lowRound = gamelogic.getRound()
+
+    def update(self):
+        print(self.selected)
+        if not self.placedDown:
+            if self.selected: 
+                self.rect.x = py.mouse.get_pos()[0]
+                self.rect.y = py.mouse.get_pos()[1]
+            else:
+                try:
+                    print("trying")
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
+                        print("really")
+                        if currentMoney.change(-300) == True:
+                            self.placedDown = True
+                            self.image.set_alpha(255)
+                            print("it got placed")
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
+                        else:
+                            print("killed 1")
+                            self.kill()
+                    else:
+                        print("killed 2")
+                        self.kill()
+                except:
+                    self.kill()
+        else:
+            if gamelogic.isSending() == True and ((gamelogic.getRound() - self.lowRound) % 3) == 2:
+                waterSupply.change(250)
+                
+    def unselect(self):
+        self.selected = False
+
+    def sink(self):
+        pass
+
+class collector(py.sprite.Sprite):
     def __init__(self, pos, selected):
 
         #Declaration stuff
@@ -520,6 +814,8 @@ class fountain(py.sprite.Sprite):
                             self.placedDown = True
                             self.image.set_alpha(255)
                             print("it got placed")
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
                             print("killed 1")
                             self.kill()
@@ -527,7 +823,7 @@ class fountain(py.sprite.Sprite):
                         print("killed 2")
                         self.kill()
                 except:
-                    print("excepted")
+                    self.kill()
         else:
             if gamelogic.isSending() == True and self.lowTime <= py.time.get_ticks() - 10000:
                 waterSupply.change(20)
@@ -536,98 +832,69 @@ class fountain(py.sprite.Sprite):
     def unselect(self):
         self.selected = False
 
+    def sink(self):
+        pass
 
-class ship(py.sprite.Sprite):
+
+class pump(py.sprite.Sprite):
     def __init__(self, pos, selected):
 
         #Declaration stuff
         super().__init__()
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
+        self.image.fill((107,112,0))
+        self.lowRound = gamelogic.getRound()
         self.selected = selected
         self.placedDown = False
-        self.storedAngle = 0 #Looking Down
-        self.lowTime = py.time.get_ticks()
-        self.image.fill((107,112,0))
         
-        pydraw.box(self.image, ((25,25), (50,50)), (175,122,0))
-        pydraw.filled_trigon(self.image,25,25,75,25,50,10, (175,122,0))
-        pydraw.box(self.image, ((10,60),(15,5)), (255,193,7))
-        pydraw.box(self.image, ((75,60),(15,5)), (255,193,7))
-
+        pydraw.box(self.image, ((30,30),(55,40)), (160,160,160))
+        pydraw.box(self.image, ((35,15),(10,15)), (160,160,160))
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-
-        self.image = outline(self.image, (107, 112, 0), 6)
+        self.image = outline(self.image, (107,112,0), 6)
         self.image.set_colorkey((107,112,0))
-
-        self.original = self.image.copy()
         self.image.set_alpha(75)
 
     def update(self):
+        print(self.selected)
         if not self.placedDown:
             if self.selected: 
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
                 try:
-                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
-                        if currentMoney.change(-1200) == True:
+                    print("trying")
+                    if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 1 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 1):
+                        if currentMoney.change(-1500) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
+                            print("it got placed")
+                            self.place = self.image.copy()
+                            unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
+                            print("killed 1")
                             self.kill()
                     else:
+                        print("killed 2")
                         self.kill()
                 except:
-                    pass
+                    self.kill()
         else:
-            self.mask = makeRadiusMask((self.rect.x, self.rect.y), 500)
-            if self.lowTime <= py.time.get_ticks() - 1000:
-                if towerTarget(self.mask,50) != None and waterSupply.change(-1):
-                    self.lowTime = py.time.get_ticks()
-                    self.targetPoint = towerTarget(self.mask,50)
-                    self.newAngle = math.degrees(math.atan2((self.targetPoint[0][0] - self.rect.x) * -1, self.targetPoint[0][1] - self.rect.y) % (2 * math.pi))
-                    robotList.sprites()[self.targetPoint[1]].damage(5)
-                    waterLine = makeDottedLine(self.rect.x + 50, self.rect.y + 50, self.targetPoint[0][0]+38, self.targetPoint[0][1]+38)
-                    screen.blit(waterLine,(0,0))
-                    if abs(self.newAngle - self.storedAngle) > 1:
-                        self.image = py.transform.rotate(self.original, int((self.newAngle - self.storedAngle) * -1))
+            if gamelogic.getRound() > self.lowRound:
+
+                waterSupply.change(300)
+                currentMoney.change(500)
+                waterSupply.sink(1)
+                self.lowTime = py.time.get_ticks()
+                
     def unselect(self):
         self.selected = False
 
-class snorkler(py.sprite.Sprite):
-    def __init__(self, pos):
+    def sink(self):
+        self.kill()
 
-        #Declaration stuff
-        super().__init__()
-        self.image = py.Surface((100,100))
-        self.rect = self.image.get_rect()
-
-class well(py.sprite.Sprite):
-    def __init__(self, pos):
-
-        #Declaration stuff
-        super().__init__()
-        self.image = py.Surface((100,100))
-        self.rect = self.image.get_rect()
-
-class collector(py.sprite.Sprite):
-    def __init__(self, pos):
-
-        #Declaration stuff
-        super().__init__()
-        self.image = py.Surface((100,100))
-        self.rect = self.image.get_rect()
-
-class pump(py.sprite.Sprite):
-    def __init__(self, pos):
-
-        #Declaration stuff
-        super().__init__()
-        self.image = py.Surface((100,100))
-        self.rect = self.image.get_rect()
 
 
 class roundManager():
@@ -851,20 +1118,20 @@ while running:
                 pydraw.box(screen, ((80 * i, 630),(40, 110)), woodBrown)
             
             for i in range(0,7):
-                pydraw.box(screen, ((65 + (i*150),640),(140,80)), (255,255,255))
+                pydraw.box(screen, ((95 + (i*150),640),(140,80)), (255,255,255))
                     
             pydraw.box(screen, ((1175,635),(100, 80)), (51,255,51))
             pydraw.filled_trigon(screen,1200,645,1200,705,1260,675,(white))
                  
-            screen.blit(rinserText, (90,660))
-            screen.blit(fountainText, (225,660))
-            screen.blit(shipText, (365,660))
-            screen.blit(snorklerText, (525,660))
-            screen.blit(wellText, (705,660))
-            screen.blit(waterCollectorText1, (850,645))
-            screen.blit(waterCollectorText2, (840,675))
-            screen.blit(waterPumpText1, (995,645))
-            screen.blit(waterPumpText2, (995,675))
+            screen.blit(rinserText, (120,660))
+            screen.blit(fountainText, (255,660))
+            screen.blit(shipText, (395,660))
+            screen.blit(snorklerText, (555,660))
+            screen.blit(wellText, (735,660))
+            screen.blit(waterCollectorText1, (880,645))
+            screen.blit(waterCollectorText2, (870,675))
+            screen.blit(waterPumpText1, (1025,645))
+            screen.blit(waterPumpText2, (1025,675))
             py.display.flip()
             clock.tick(60)
 
@@ -878,15 +1145,28 @@ while running:
                     if ((mouse[0] > 1174 and mouse[0] < 1276) and (mouse[1] > 635 and mouse[1] < 716)) and gamelogic.isSending() == False:
                         logicThread = threading.Thread(target=gamelogic.startNextRound)
                         logicThread.start()
-                    if ((mouse[0] > 65 and mouse[0] < 205) and (mouse[1] > 640 and mouse[1] < 720)):
+                    if ((mouse[0] > 95 and mouse[0] < 235) and (mouse[1] > 640 and mouse[1] < 720)):
                         selectedTower = rinser((mouse[0], mouse[1]), True)
                         tempList.add(selectedTower)
-                    if ((mouse[0] > 215 and mouse[0] < 355) and (mouse[1] > 640 and mouse[1 < 720])):
+                    if ((mouse[0] > 245 and mouse[0] < 385) and (mouse[1] > 640 and mouse[1] < 720)):
                         selectedTower = fountain((mouse[0], mouse[1]), True)
                         tempList.add(selectedTower)
-                    if ((mouse[0] > 365 and mouse[0] < 505) and (mouse[1] > 640 and mouse[1 < 720])):
+                    if ((mouse[0] > 395 and mouse[0] < 535) and (mouse[1] > 640 and mouse[1] < 720)):
                         selectedTower = ship((mouse[0], mouse[1]), True)
                         tempList.add(selectedTower)
+                    if ((mouse[0] > 545 and mouse[0] < 685) and (mouse[1] > 640 and mouse[1] < 720)):
+                        selectedTower = snorkler((mouse[0], mouse[1]), True)
+                        tempList.add(selectedTower)
+                    if ((mouse[0] > 695 and mouse[0] < 835) and (mouse[1] > 640 and mouse[1] < 720)):
+                        selectedTower = well((mouse[0], mouse[1]), True)
+                        tempList.add(selectedTower)
+                    if ((mouse[0] > 845 and mouse[0] < 985) and (mouse[1] > 640 and mouse[1] < 720)):
+                        selectedTower = collector((mouse[0], mouse[1]), True)
+                        tempList.add(selectedTower)
+                    if ((mouse[0] > 995 and mouse[0] < 1135) and (mouse[1] > 640 and mouse[1] < 720)):
+                        selectedTower = pump((mouse[0], mouse[1]), True)
+                        tempList.add(selectedTower)
+
                 if event.type == py.MOUSEBUTTONUP:
                     print("why")
                     tempList.empty()
