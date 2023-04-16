@@ -18,6 +18,7 @@ spriteList = py.sprite.Group()
 towerList = py.sprite.Group()
 robotList = py.sprite.Group()
 tempList = py.sprite.Group()
+pumpList = py.sprite.Group()
 unplaceableScreen = py.Surface((1280,720))
 unplaceableScreen.fill((0,0,0))
 waterScreen = py.Surface((1280,720))
@@ -46,6 +47,8 @@ rinserTone = (255,204,153)
 rinserHair = (150,74,2)
 black = (0,0,0)
 white = (255,255,255)
+off = (255,51,51)
+on = (51,255,51)
 
 class States(Enum):
     mainMenu = 1
@@ -535,10 +538,14 @@ class fountain(py.sprite.Sprite):
         self.image = py.Surface((100,100))
         self.rect = self.image.get_rect()
         self.selected = selected
+        self.image.fill((107,112,0))
         self.placedDown = False
         self.storedAngle = 0 #Looking Down
         self.lowTime = py.time.get_ticks()
         
+        pydraw.filled_circle(self.image, 50,50,40, (160,160,160))
+        pydraw.filled_circle(self.image, 50,50,35, (51,51,255))
+        pydraw.filled_circle(self.image, 50,50,10, (224,224,224))
         
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -546,12 +553,23 @@ class fountain(py.sprite.Sprite):
         self.image = outline(self.image, (107, 112, 0), 6)
         self.image.set_colorkey((107,112,0))
 
-        self.original = self.image.copy()
+        self.inactive = self.image.copy()
+
+        self.image.fill((107,112,0))
+        pydraw.filled_circle(self.image, 50,50,45, (51,153,255))
+        pydraw.filled_circle(self.image, 50,50,40, (160,160,160))
+        pydraw.filled_circle(self.image, 50,50,35, (51,51,255))
+        pydraw.filled_circle(self.image, 50,50,10, (224,224,224))
+        self.image = outline(self.image, (107, 112, 0), 6)
+        self.image.set_colorkey((107,112,0))
+        self.active = self.image.copy()
+
         self.image.set_alpha(75)
 
     def update(self):
         if not self.placedDown:
             if self.selected: 
+                self.image.set_colorkey((107,112,0))
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
@@ -569,7 +587,6 @@ class fountain(py.sprite.Sprite):
                 except:
                     self.kill()
         else:
-            #FIX THIS
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
             if self.lowTime <= py.time.get_ticks() - 200:
                 if towerTarget(self.mask,50,False) != None and waterSupply.change(-1):
@@ -577,6 +594,9 @@ class fountain(py.sprite.Sprite):
                     self.target = towerTarget(self.mask,50, True)
                     for x in range(0, len(self.target)):
                         robotList.sprites()[self.target[x]].damage(1)
+                    self.image = self.active
+                else:
+                    self.image = self.inactive
     def unselect(self):
         self.selected = False
 
@@ -730,38 +750,60 @@ class well(py.sprite.Sprite):
         self.selected = selected
         self.placedDown = False
         
-        pydraw.filled_circle(self.image, 20,20, 10, white)
+        pydraw.filled_circle(self.image, 25,25, 14, black)
+        pydraw.filled_circle(self.image, 25,25, 10, (120,61,0))
+        pydraw.filled_circle(self.image, 25,25, 7, (51,51,255))
 
-        pydraw.filled_circle(self.image, 50,50, 10, white)
+        pydraw.filled_circle(self.image, 60,60, 30, black)
+        pydraw.filled_circle(self.image, 60,60, 25, (128,128,128))
+        pydraw.line(self.image,33,50,87,50, black)
+        pydraw.line(self.image,33,70,87,70, black)
+        pydraw.line(self.image,33,51,87,51, black)
+        pydraw.line(self.image,33,71,87,71, black)
+
+        pydraw.line(self.image,50,35,50,50, black)
+        pydraw.line(self.image,49,35,49,49, black)
+
+        pydraw.line(self.image,50,70,50,85, black)
+        pydraw.line(self.image,49,70,49,85, black)
+
+        pydraw.line(self.image,70,35,70,50, black)
+        pydraw.line(self.image,69,35,69,50, black)
+
+        pydraw.line(self.image,70,70,70,85, black)
+        pydraw.line(self.image,69,70,69,85, black)
+
+        pydraw.line(self.image,60,70,60,50, black)
+        pydraw.line(self.image,59,70,59,50, black)
+        
+        pydraw.line(self.image,80,70,80,50, black)
+        pydraw.line(self.image,81,70,81,50, black)
+
+        pydraw.line(self.image,40,70,40,50, black)
+        pydraw.line(self.image,39,70,39,50, black)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.image = outline(self.image, (107,112,0), 6)
+
         self.image.set_colorkey((107,112,0))
         self.image.set_alpha(75)
         self.lowRound = gamelogic.getRound()
 
     def update(self):
-        print(self.selected)
         if not self.placedDown:
             if self.selected: 
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
                 try:
-                    print("trying")
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
-                        print("really")
                         if currentMoney.change(-300) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
-                            print("it got placed")
                             self.place = self.image.copy()
                             unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
-                            print("killed 1")
                             self.kill()
                     else:
-                        print("killed 2")
                         self.kill()
                 except:
                     self.kill()
@@ -800,27 +842,21 @@ class collector(py.sprite.Sprite):
         self.image.set_alpha(75)
 
     def update(self):
-        print(self.selected)
         if not self.placedDown:
             if self.selected: 
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
                 try:
-                    print("trying")
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
-                        print("really")
                         if currentMoney.change(-300) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
-                            print("it got placed")
                             self.place = self.image.copy()
                             unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
-                            print("killed 1")
                             self.kill()
                     else:
-                        print("killed 2")
                         self.kill()
                 except:
                     self.kill()
@@ -847,9 +883,22 @@ class pump(py.sprite.Sprite):
         self.lowRound = gamelogic.getRound()
         self.selected = selected
         self.placedDown = False
+        self.active = False
         
         pydraw.box(self.image, ((30,30),(55,40)), (160,160,160))
-        pydraw.box(self.image, ((35,15),(10,15)), (160,160,160))
+        pydraw.box(self.image, ((35,15),(7,15)), (160,160,160))
+        pydraw.box(self.image, ((15,15),(20,7)), (160,160,160))
+        pydraw.box(self.image, ((15,15),(7,60)), (160,160,160))
+        pydraw.box(self.image, ((55,20),(10,10)), off)
+        #pydraw.box(self.image, ((45,20),(10,10)), (160,160,160))
+        pydraw.aacircle(self.image, 57, 50, 10, black)
+        pydraw.aacircle(self.image, 57, 50, 11, black)
+        pydraw.aacircle(self.image, 57, 50, 12, black)
+        pydraw.aacircle(self.image, 57, 50, 13, black)
+        pydraw.aacircle(self.image, 57, 50, 14, black)
+        pydraw.line(self.image, 57,33,57,50,black)
+        pydraw.line(self.image, 58,33,58,50,black)
+        pydraw.line(self.image, 56,33,56,50,black)
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -858,37 +907,42 @@ class pump(py.sprite.Sprite):
         self.image.set_alpha(75)
 
     def update(self):
-        print(self.selected)
         if not self.placedDown:
             if self.selected: 
                 self.rect.x = py.mouse.get_pos()[0]
                 self.rect.y = py.mouse.get_pos()[1]
             else:
                 try:
-                    print("trying")
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 1 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 1):
                         if currentMoney.change(-1500) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
-                            print("it got placed")
                             self.place = self.image.copy()
                             unplaceableScreen.blit(self.place,(self.rect.x, self.rect.y))
                         else:
-                            print("killed 1")
                             self.kill()
                     else:
-                        print("killed 2")
                         self.kill()
                 except:
                     self.kill()
         else:
-            if gamelogic.getRound() > self.lowRound:
+            if gamelogic.getRound() > self.lowRound and self.active == True:
 
                 waterSupply.change(300)
                 currentMoney.change(500)
                 waterSupply.sink(1)
-                self.lowTime = py.time.get_ticks()
-                
+                self.lowRound = py.time.get_ticks()
+    
+    def click(self):
+       if ((mouse[0] > self.rect.x + 35 and mouse[0] > self.rect.y + 35) and (mouse[1] < self.rect.x + 65 and mouse[1] < self.rect.y + 65)):
+            if self.active:
+                pydraw.box(self.image, ((55,20),(10,10)), off)
+                self.active = False
+            else:
+                pydraw.box(self.image, ((55,20),(10,10)), on)
+                self.active = True
+            print("clicked")
+
     def unselect(self):
         self.selected = False
 
@@ -1166,14 +1220,19 @@ while running:
                     if ((mouse[0] > 995 and mouse[0] < 1135) and (mouse[1] > 640 and mouse[1] < 720)):
                         selectedTower = pump((mouse[0], mouse[1]), True)
                         tempList.add(selectedTower)
+                        pumpList.add(selectedTower)
+
+                    try:
+                        for x in pumpList:
+                            x.click()
+                    except:
+                        pass
 
                 if event.type == py.MOUSEBUTTONUP:
-                    print("why")
                     tempList.empty()
                     try:
                         selectedTower.unselect()
                         towerList.add(selectedTower)
-                        print(towerList)
                     except:
                         pass
 
