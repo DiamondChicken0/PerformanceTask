@@ -58,7 +58,7 @@ class States(Enum):
     victory = 4
 
 
-state = States.mainGame
+state = States.mainMenu
 clock = py.time.Clock()
 skyBG = py.Rect(0, 0, 1280, 720)
 running = True
@@ -295,7 +295,6 @@ class water():
                 except:
                     pass
             self.sunk = True
-        print(self.sinkage)
 
     def isSunk(self):
         return self.sunk
@@ -305,7 +304,7 @@ class water():
 
 class money():
     def __init__(self):
-        self.money = 5000
+        self.money = 1500
         self.moneyText = hudFont.render(str(self.money), True, white)
 
     def change(self, amount):
@@ -619,7 +618,7 @@ class fountain(py.sprite.Sprite):
         else:
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 200)
             if self.lowTime <= py.time.get_ticks() - 200:
-                if towerTarget(self.mask, 50, False) != None and waterSupply.change(-1):
+                if towerTarget(self.mask, 50, False) != None and waterSupply.change(-5):
                     self.lowTime = py.time.get_ticks()
                     self.target = towerTarget(self.mask, 50, True)
                     for x in range(0, len(self.target)):
@@ -677,12 +676,11 @@ class ship(py.sprite.Sprite):
             else:
                 try:
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 1 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 1 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 1):
-                        if currentMoney.change(-1200) == True:
+                        if currentMoney.change(-1000) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
                             self.place = self.image.copy()
-                            unplaceableScreen.blit(
-                                self.place, (self.rect.x, self.rect.y))
+                            unplaceableScreen.blit(self.place, (self.rect.x, self.rect.y))
                         else:
                             self.kill()
                     else:
@@ -692,7 +690,7 @@ class ship(py.sprite.Sprite):
         else:
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 500)
             if self.lowTime <= py.time.get_ticks() - 1000:
-                if towerTarget(self.mask, 50, False) != None and waterSupply.change(-1):
+                if towerTarget(self.mask, 50, False) != None and waterSupply.change(-4):
                     self.lowTime = py.time.get_ticks()
                     self.targetPoint = towerTarget(self.mask, 50, False)
                     self.newAngle = math.degrees(math.atan2(
@@ -765,9 +763,9 @@ class snorkler(py.sprite.Sprite):
         else:
             if gamelogic.isSending() == True and self.lowTime <= py.time.get_ticks() - 7500:
                 if random.randint(1, 10) == 9:
-                    currentMoney.change(500*random.randint(1, 3))
-                else:
                     currentMoney.change(200*random.randint(1, 3))
+                else:
+                    currentMoney.change(100*random.randint(1, 3))
                 self.lowTime = py.time.get_ticks()
 
     def unselect(self):
@@ -849,7 +847,7 @@ class well(py.sprite.Sprite):
                     self.kill()
         else:
             if gamelogic.isSending() == True and ((gamelogic.getRound() - self.lowRound) % 3) == 2:
-                waterSupply.change(250)
+                waterSupply.change(125)
                 self.lowRound = gamelogic.getRound()
 
     def unselect(self):
@@ -905,7 +903,7 @@ class collector(py.sprite.Sprite):
                     self.kill()
         else:
             if gamelogic.isSending() == True and self.lowTime <= py.time.get_ticks() - 10000:
-                waterSupply.change(20)
+                waterSupply.change(25)
                 self.lowTime = py.time.get_ticks()
 
     def unselect(self):
@@ -972,8 +970,8 @@ class pump(py.sprite.Sprite):
         else:
             if gamelogic.getRound() > self.lowRound and self.active == True:
 
-                waterSupply.change(300)
-                currentMoney.change(500)
+                waterSupply.change(200)
+                currentMoney.change(400)
                 waterSupply.sink(-1)
                 self.lowRound = gamelogic.getRound()
 
@@ -985,7 +983,6 @@ class pump(py.sprite.Sprite):
             else:
                 pydraw.box(self.image, ((55, 20), (10, 10)), on)
                 self.active = True
-            print("clicked")
 
     def unselect(self):
         self.selected = False
@@ -1020,6 +1017,7 @@ def lose():
             quit()
         py.display.flip()
         clock.tick(60)
+
 class roundManager():
     def __init__(self):
         self.round = 1
@@ -1030,6 +1028,7 @@ class roundManager():
 
     def startNextRound(self):
         self.lowTime = py.time.get_ticks()
+        currentMoney.change(100)
         if self.round == 20:
             victory()
         else:
