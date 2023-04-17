@@ -1,3 +1,20 @@
+
+#AP PERFORMANCE TASK
+# numpy is required | pip install numpy
+# pygame is required | pip install pygame
+
+#-----------Instructions-----------#
+#Once you progress through the main menu and the loading screen.
+#You begin the game with 1500 cash and 200 water, cash is used
+#purchase allies to aid against the waves of robots. Below is a 
+#description to describe each ally in greater detail
+
+# Rinser: Costs 500, Uses 1 water, Med damage, Med Speed, Basic starter tower
+# Fountain: Costs 800, Uses 1 water, Low damage, High Speed, High damage per second & High water usage
+# Ship Costs: *WATER ONLY* Costs 1200, Uses 1 water, High damage, Low Damage, Long Range & High Damage
+# Snorkler: *WATER ONLY* Costs 600,
+#----------------------------------#
+
 import pygame as py
 import pygame.gfxdraw as pydraw
 import pygame.pixelarray
@@ -11,6 +28,7 @@ py.init()
 py.font.init()
 random.seed()
 
+#Declaration of Screen and Sprite Groups
 size = (1280, 720)
 screen = py.display.set_mode(size)
 py.display.set_caption("Bot Defense")
@@ -50,7 +68,7 @@ white = (255, 255, 255)
 off = (255, 51, 51)
 on = (51, 255, 51)
 
-
+#Simple Enum for keeping track of game states
 class States(Enum):
     mainMenu = 1
     transition = 2
@@ -160,6 +178,7 @@ waterHUD = py.transform.scale(waterHUD, (77, 77))
 waterHUD.set_colorkey((43, 170, 255))
 waterHUD.unlock()
 
+#Text Generation
 subTitleFont = py.font.SysFont("Tahoma", 90)
 startGameText = subTitleFont.render("Start Game", True, white)
 
@@ -177,7 +196,7 @@ waterPumpText2 = towerFont.render("Pump", True, black)
 
 selectedTower = None
 
-
+#Makes a mask according to the pos and radius to give towers a range
 def makeRadiusMask(pos, r):
     rMaskScreen = py.Surface((1280, 720))
     rMaskScreen.fill((0, 0, 0))
@@ -186,9 +205,8 @@ def makeRadiusMask(pos, r):
     rMask = py.mask.from_surface(rMaskScreen)
 
     return rMask
+
 # Keeps track of lives
-
-
 class lives():
     def __init__(self):
         self.gameLives = 100
@@ -207,8 +225,6 @@ class lives():
         return self.gameLivesText
 
 # Outlines surfaces using a key(background color)
-
-
 def outline(surf, key, size):
     pixArray = py.surfarray.array3d(surf)
     # loop through everything
@@ -262,8 +278,6 @@ def outline(surf, key, size):
     return surf
 
 # keeps track of water
-
-
 class water():
     def __init__(self):
         self.water = 200
@@ -301,8 +315,6 @@ class water():
         return self.sunk
 
 # keeps track of money
-
-
 class money():
     def __init__(self):
         self.money = 5000
@@ -328,8 +340,6 @@ currentMoney = money()
 
 # The robot increases its speed and HP with energy
 # indicated by the color of the robot: Green > Blue > Orange > Red
-
-
 class robot(py.sprite.Sprite):
     def __init__(self, color):
         super().__init__()
@@ -394,7 +404,6 @@ class robot(py.sprite.Sprite):
                     self.image = py.transform.rotate(self.image, 90)
                     self.storedAngle = 180
 
-            # I cant be bothered making this airtight, its close enough
             if abs(self.rect.x - self.robotMoves[self.moveNum][0] + self.rect.y - self.robotMoves[self.moveNum][1]) < 5:
                 self.rect.x = self.robotMoves[self.moveNum][0]
                 self.rect.y = self.robotMoves[self.moveNum][1]
@@ -433,7 +442,7 @@ class robot(py.sprite.Sprite):
 
         self.image = py.transform.rotate(self.image, self.storedAngle - 90)
 
-
+#Gives the towers a list of robots in its range mask
 def towerTarget(mask, offset, list):
     index = -1
     if list == False:
@@ -456,7 +465,7 @@ def towerTarget(mask, offset, list):
                 pass
         return robotsNearbyList
 
-
+#Makes lines representing the water
 def makeDottedLine(startx, starty, endx, endy):
     tempScreen = py.Surface((1280, 720))
     tempScreen.fill((255, 255, 255))
@@ -604,7 +613,7 @@ class fountain(py.sprite.Sprite):
             else:
                 try:
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
-                        if currentMoney.change(-500) == True:
+                        if currentMoney.change(-800) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
                             self.place = self.image.copy()
@@ -687,11 +696,11 @@ class ship(py.sprite.Sprite):
                             self.kill()
                     else:
                         self.kill()
-                except:
+                except: 
                     self.kill()
         else:
             self.mask = makeRadiusMask((self.rect.x, self.rect.y), 500)
-            if self.lowTime <= py.time.get_ticks() - 1000:
+            if self.lowTime <= py.time.get_ticks() - 1300:
                 if towerTarget(self.mask, 50, False) != None and waterSupply.change(-1):
                     self.lowTime = py.time.get_ticks()
                     self.targetPoint = towerTarget(self.mask, 50, False)
@@ -914,7 +923,7 @@ class collector(py.sprite.Sprite):
     def sink(self):
         pass
 
-
+# Collects money and water but risks deleting all of the water towers if left on for too long
 class pump(py.sprite.Sprite):
     def __init__(self, pos, selected):
 
@@ -993,6 +1002,7 @@ class pump(py.sprite.Sprite):
     def sink(self):
         self.kill()
     
+#Call this to end the game on a high note
 def victory():
     victoryTextFont = py.font.SysFont("Trebuchet MS", 200)
     victoryText = victoryTextFont.render("Victory!", True, white)
@@ -1007,6 +1017,7 @@ def victory():
         py.display.flip()
         clock.tick(60)
 
+#Call this to end the game on a low note
 def lose():
     loseTextFont = py.font.SysFont("Trebuchet MS", 200)
     loseText = loseTextFont.render("You Lost...", True, white)
@@ -1020,6 +1031,8 @@ def lose():
             quit()
         py.display.flip()
         clock.tick(60)
+
+#Manages the logic behind Rounds and how to send the robots in what order
 class roundManager():
     def __init__(self):
         self.round = 1
@@ -1236,6 +1249,7 @@ while running:
             pydraw.box(screen, ((-360 - j, 360 + j), (1000, 1000)), black)
             pydraw.box(screen, ((640 + j, 360 + j), (1000, 1000)), black)
 
+            #Hud stuff
             pydraw.box(screen, ((0, 630), (1280, 110)), darkWood)
             pydraw.box(unplaceableScreen, ((0, 630), (1280, 110)), darkWood)
 
@@ -1319,3 +1333,4 @@ while running:
     clock.tick(60)
 
 py.quit()
+
