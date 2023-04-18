@@ -4,15 +4,24 @@
 # pygame is required | pip install pygame
 
 #-----------Instructions-----------#
-#Once you progress through the main menu and the loading screen.
-#You begin the game with 1500 cash and 200 water, cash is used
-#purchase allies to aid against the waves of robots. Below is a 
-#description to describe each ally in greater detail
+# Once you progress through the main menu and the loading screen.
+# You begin the game with 1500 cash and 200 water, cash is used
+# purchase allies to aid against the waves of robots. Below is a 
+# description to describe each ally in greater detail
 
 # Rinser: Costs 500, Uses 1 water, Med damage, Med Speed, Basic starter tower
-# Fountain: Costs 800, Uses 1 water, Low damage, High Speed, High damage per second & High water usage
-# Ship Costs: *WATER ONLY* Costs 1200, Uses 1 water, High damage, Low Damage, Long Range & High Damage
-# Snorkler: *WATER ONLY* Costs 600,
+# Fountain: Costs 800, Uses 5 water, Low damage, High Speed, High damage per second & High water usage
+# Ship Costs: *WATER ONLY* Costs 1000, Uses 4 water, High damage, Low Damage, Long Range & High Damage
+# Snorkler: *WATER ONLY* Costs 600, Generates 100 - 600 Cash every 7 seconds, Luck Based Money Generation
+# Well: Costs 500, Generates 250 water every 3 rounds, Gains large amounts of water every 3 rounds
+# Collector: Costs 300, Generates 25 water every 10 seconds, Gains water in short periods of time cheaply
+# Pump: Costs 1500, Generates 200 water and 400 money every round, Gains large amounts of resources however
+# it can destroy the lake if left on too long.
+
+# You can begin a round by pressing the green arrow button on the bottom right,
+# Each completed round you get 100 free cash. However if any robots get past
+# you lose lives according to the HP value of the robot. The Goal of the game is to
+# survive 20 rounds utilizing the resources provided to strategize your way to victory.
 #----------------------------------#
 
 import pygame as py
@@ -842,7 +851,7 @@ class well(py.sprite.Sprite):
             else:
                 try:
                     if (unplaceableMask.get_at((self.rect.x, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and unplaceableMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and unplaceableMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0) and (waterMask.get_at((self.rect.x, self.rect.y)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y)) == 0 and waterMask.get_at((self.rect.x, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 100, self.rect.y + 100)) == 0 and waterMask.get_at((self.rect.x + 50, self.rect.y + 50)) == 0):
-                        if currentMoney.change(-300) == True:
+                        if currentMoney.change(-500) == True:
                             self.placedDown = True
                             self.image.set_alpha(255)
                             self.place = self.image.copy()
@@ -856,7 +865,7 @@ class well(py.sprite.Sprite):
                     self.kill()
         else:
             if gamelogic.isSending() == True and ((gamelogic.getRound() - self.lowRound) % 3) == 2:
-                waterSupply.change(125)
+                waterSupply.change(250)
                 self.lowRound = gamelogic.getRound()
 
     def unselect(self):
@@ -1008,7 +1017,7 @@ def victory():
     pydraw.box(gray, ((0,0),(1280,720)), (160,160,160))
     while True:
         screen.blit(gray, (0,0))
-        screen.blit(victoryText, (200,200))
+        screen.blit(victoryText, (250,200))
         if timer <= py.time.get_ticks() - 5000:
             quit()
         py.display.flip()
@@ -1039,9 +1048,7 @@ class roundManager():
     def startNextRound(self):
         self.lowTime = py.time.get_ticks()
         currentMoney.change(100)
-        if self.round == 20:
-            victory()
-        else:
+        if self.round != 20:
             self.sending = True
             self.robotR = self.waves[(self.round-1)][0]
             self.robotO = self.waves[(self.round-1)][1]
@@ -1185,6 +1192,8 @@ while running:
         j = 0
 
         while gameRunning:
+            if gamelogic.getRound() == 20:
+                state = States.victory
             if j < 2000:
                 j = j + 2.5
             pydraw.box(screen, ((0, 0), (1280, 720)), grassGreen)
@@ -1319,7 +1328,20 @@ while running:
                         towerList.add(selectedTower)
                     except:
                         pass
-    
+    if state == States.victory:
+        victoryTextFont = py.font.SysFont("Trebuchet MS", 200)
+        victoryText = victoryTextFont.render("Victory!", True, white)
+        timer = py.time.get_ticks()
+        gray = py.Surface((1280,720))
+        pydraw.box(gray, ((0,0),(1280,720)), (160,160,160))
+        while True:
+            screen.blit(gray, (0,0))
+            screen.blit(victoryText, (250,200))
+            if timer <= py.time.get_ticks() - 5000:
+                quit()
+            py.display.flip()
+            clock.tick(60)
+            
     for event in py.event.get():
         if event.type == py.QUIT:
             running = False
